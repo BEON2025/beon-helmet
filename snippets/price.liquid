@@ -1,0 +1,262 @@
+{%- doc -%}
+  This snippet is used to render a product card.
+  It is used in the product block, featured product block, and the product card block.
+
+  @param {product} product_resource - The product to render
+  @param {boolean} [show_unit_price] - Whether to show the unit price
+  @param {boolean} [show_sale_price_first] - Whether to show the sale price first
+  @param {boolean} [show_discount_badge] - Whether to show the per-customer discount badge instead of the crossed price
+  @param {string} [discount_badge_style] - Visual style for the discount badge: 'default' or 'light'
+{%- enddoc -%}
+
+{%- liquid
+  assign show_unit_price = show_unit_price | default: false
+  assign show_sale_price_first = show_sale_price_first | default: false
+  assign selected_variant = product_resource.selected_or_first_available_variant
+  assign show_discount_badge = show_discount_badge | default: false
+  assign discount_badge_style = discount_badge_style | default: 'default'
+
+  # Check if customer has B2B tag
+  assign has_b2b_tag = false
+  if customer
+    for tag in customer.tags
+      if tag == 'B2B'
+        assign has_b2b_tag = true
+        break
+      endif
+    endfor
+  endif
+
+  # Set price based on B2B tag
+  if has_b2b_tag
+    # B2B customer: use regular price
+    assign price = selected_variant.price
+    assign show_msrp_label = false
+  else
+    # Non-B2B: use metafield or fallback to regular price
+    assign metafield_price = selected_variant.metafields.pricing.original_consumer_price
+    if metafield_price
+      # Metafield is a money object, use the value property which is in cents
+      assign price = metafield_price.value
+    else
+      assign price = selected_variant.price
+    endif
+    assign show_msrp_label = true
+  endif
+
+  assign compare_at_price = selected_variant.compare_at_price
+
+  assign compare_at_price = selected_variant.compare_at_price
+
+  if product_resource == blank
+    assign price = 1999
+  endif
+
+  assign msrp_label = 'MSRP'
+-%}
+
+{%- comment -%} show_discount_badge is optional; if absent it will be treated as false in conditionals {%- endcomment -%}
+
+{%- comment -%} Compute customer discount percent from tags (separate tags for future adjustments) {%- endcomment -%}
+{% assign discount_percent = 0 %}
+{% if customer %}
+  {% for tag in customer.tags %}
+    {% assign candidate = 0 %}
+    {% assign candidate_type = '' %}
+    {% case tag %}
+      {% when 'Dealer10' %}
+        {%- assign candidate = 10 %}
+        {%- assign candidate_type = 'Dealer' -%}
+      {% when 'Distributeur10' %}
+        {%- assign candidate = 10 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% when 'Distributeur15' %}
+        {%- assign candidate = 15 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% when 'Dealer20' -%}
+        {%- assign candidate = 20 %}
+        {%- assign candidate_type = 'Dealer' -%}
+      {% when 'Distributeur20' -%}
+        {%- assign candidate = 20 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% when 'Dealer25' -%}
+        {%- assign candidate = 25 %}
+        {%- assign candidate_type = 'Dealer' -%}
+      {% when 'Distributeur25' -%}
+        {%- assign candidate = 25 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% when 'Dealer30' -%}
+        {%- assign candidate = 30 %}
+        {%- assign candidate_type = 'Dealer' -%}
+      {% when 'Distributeur30' -%}
+        {%- assign candidate = 30 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+    {% endcase %}
+    {% if candidate > discount_percent %}
+      {% assign discount_percent = candidate %}
+      {% assign customer_type = candidate_type %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign original_price_num = selected_variant.price %}
+{% if discount_percent > 0 %}
+  {% assign percent_factor = 100 | minus: discount_percent %}
+  {% assign discounted_price_num = original_price_num | times: percent_factor | divided_by: 100 %}
+{% else %}
+  {% assign discounted_price_num = original_price_num %}
+{% endif %}
+
+{% assign show_compare_price = false %}
+{% if compare_at_price > discounted_price_num %}
+  {% assign show_compare_price = true %}
+{% elsif original_price_num > discounted_price_num %}
+  {% assign show_compare_price = true %}
+{% endif %}
+
+{% comment %}
+  Decide which numeric value to format as the compare (crossed) price. If we have a customer discount
+  we want to show the original product price as the crossed price; otherwise prefer the variant compare_at_price.
+{% endcomment %}
+{% assign format_price_num = discounted_price_num %}
+{% assign format_compare_num = compare_at_price %}
+{% if discount_percent > 0 %}
+  {% assign format_compare_num = original_price_num %}
+{% endif %}
+
+{%- comment -%} Format the numeric prices into display strings based on product vs card settings {%- endcomment -%}
+{% if has_b2b_tag %}
+  {% if product.handle == closest.product.handle %}
+    {% if settings.currency_code_enabled_product_pages and settings.currency_symbol_enabled_product_pages %}
+      {% assign price = format_price_num | money %}
+      {% assign compare_at_price = format_compare_num | money %}
+      {% assign price = price | append: ' ' | append: shop.currency %}
+      {% assign compare_at_price = compare_at_price | append: ' ' | append: shop.currency %}
+    {% elsif settings.currency_code_enabled_product_pages %}
+      {% assign price = format_price_num | money_without_currency %}
+      {% assign compare_at_price = format_compare_num | money_without_currency %}
+      {% assign price = price | append: ' ' | append: shop.currency %}
+      {% assign compare_at_price = compare_at_price | append: ' ' | append: shop.currency %}
+    {% elsif settings.currency_symbol_enabled_product_pages %}
+      {% assign price = format_price_num | money %}
+      {% assign compare_at_price = format_compare_num | money %}
+    {% else %}
+      {% assign price = format_price_num | money_without_currency %}
+      {% assign compare_at_price = format_compare_num | money_without_currency %}
+    {% endif %}
+  {% else %}
+    {% if settings.currency_code_enabled_product_cards and settings.currency_symbol_enabled_product_cards %}
+      {% assign price = format_price_num | money %}
+      {% assign compare_at_price = format_compare_num | money %}
+      {% assign price = price | append: ' ' | append: shop.currency %}
+      {% assign compare_at_price = compare_at_price | append: ' ' | append: shop.currency %}
+    {% elsif settings.currency_code_enabled_product_cards %}
+      {% assign price = format_price_num | money_without_currency %}
+      {% assign compare_at_price = format_compare_num | money_without_currency %}
+      {% assign price = price | append: ' ' | append: shop.currency %}
+      {% assign compare_at_price = compare_at_price | append: ' ' | append: shop.currency %}
+    {% elsif settings.currency_symbol_enabled_product_cards %}
+      {% assign price = format_price_num | money %}
+      {% assign compare_at_price = format_compare_num | money %}
+    {% else %}
+      {% assign price = format_price_num | money_without_currency %}
+      {% assign compare_at_price = format_compare_num | money_without_currency %}
+    {% endif %}
+  {% endif %}
+{% else %}
+  {% assign price = price | money %}
+  {% assign compare_at_price = compare_at_price | money %}
+  {% assign price = price | append: ' ' | append: shop.currency %}
+  {% assign compare_at_price = compare_at_price | append: ' ' | append: shop.currency %}
+{% endif %}
+
+<div
+  ref="priceContainer"
+  class="{%- if discount_percent and discount_percent > 0 and show_discount_badge -%}price--has-badge{%- endif -%}"
+>
+  {% if show_sale_price_first == false and show_compare_price %}
+    <span role="group">
+      <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
+      {% if discount_percent and discount_percent > 0 and show_discount_badge %}
+        <span class="product-badges__badge product-price__badge color-{{ settings.badge_dealer_color_scheme }}">
+          {{ customer_type }} -{{ discount_percent }}%
+        </span>
+      {% else %}
+        <span class="compare-at-price{% if discount_percent and discount_percent > 0 %} compare-at-price--discount{% endif %}">
+          {{ compare_at_price }}
+          {% if show_msrp_label %}
+            <span class="msrp">{{ msrp_label }}</span>
+          {% endif %}
+        </span>
+      {% endif %}
+    </span>
+  {% endif %}
+
+  {% if show_compare_price %}
+    <span role="group">
+      <span class="visually-hidden">{{ 'content.price_sale' | t }}&nbsp;</span>
+      <span class="price">
+        {{ price | default: '&nbsp;' }}
+        {% if show_msrp_label %}
+          <span class="msrp">{{ msrp_label }}</span>
+        {% endif %}
+      </span>
+    </span>
+  {% else %}
+    <span class="price">
+      {{ price | default: '&nbsp;' }}
+      {% if show_msrp_label %}
+        <span class="msrp">{{ msrp_label }}</span>
+      {% endif %}
+    </span>
+  {% endif %}
+
+  {% if show_sale_price_first == true and show_compare_price %}
+    <span role="group">
+      <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
+      {% if discount_percent and discount_percent > 0 and show_discount_badge %}
+        <span class="product-badges__badge product-price__badge color-{{ settings.badge_dealer_color_scheme }}">
+          {{ customer_type }} -{{ discount_percent }}%
+        </span>
+      {% else %}
+        <span class="compare-at-price{% if discount_percent and discount_percent > 0 %} compare-at-price--discount{% endif %}">
+          {{ compare_at_price }}
+          {% if show_msrp_label %}
+            <span class="msrp">{{ msrp_label }}</span>
+          {% endif %}
+        </span>
+      {% endif %}
+    </span>
+  {% endif %}
+
+  {%- if selected_variant.unit_price and show_unit_price -%}
+    {%- liquid
+      if product.handle == closest.product.handle
+        if settings.currency_code_enabled_product_pages and settings.currency_symbol_enabled_product_pages
+          assign unit_price = selected_variant.unit_price | money
+          assign unit_price = unit_price | append: ' ' | append: shop.currency
+        elsif settings.currency_code_enabled_product_pages
+          assign unit_price = selected_variant.unit_price | money_without_currency
+          assign unit_price = unit_price | append: ' ' | append: shop.currency
+        elsif settings.currency_symbol_enabled_product_pages
+          assign unit_price = selected_variant.unit_price | money
+        else
+          assign unit_price = selected_variant.unit_price | money_without_currency
+        endif
+      else
+        if settings.currency_code_enabled_product_cards and settings.currency_symbol_enabled_product_cards
+          assign unit_price = selected_variant.unit_price | money
+          assign unit_price = unit_price | append: ' ' | append: shop.currency
+        elsif settings.currency_code_enabled_product_cards
+          assign unit_price = selected_variant.unit_price | money_without_currency
+          assign unit_price = unit_price | append: ' ' | append: shop.currency
+        elsif settings.currency_symbol_enabled_product_cards
+          assign unit_price = selected_variant.unit_price | money
+        else
+          assign unit_price = selected_variant.unit_price | money_without_currency
+        endif
+      endif
+    -%}
+    {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
+  {%- endif -%}
+</div>

@@ -1,0 +1,588 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "center",
+            "type_preset": "h1",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "disabled": true,
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "map_6FQUBY": {
+      "type": "map",
+      "blocks": {
+        "store_9": {
+          "type": "store",
+          "settings": {
+            "name": "Motomasu",
+            "address": "Ampèrestraat 3 Naaldwijk 2671BX, Nederland",
+            "phone": "085 - 401 38 65",
+            "domain": "https://www.motomasu.com/"
+          }
+        },
+        "store_13": {
+          "type": "store",
+          "settings": {
+            "name": "Free Wheeler De Graaf",
+            "address": "Amsterdamsestraatweg 261, Utrecht 3551 CE",
+            "phone": "030 - 242 18 65",
+            "domain": "http://freewheeler.nl/"
+          }
+        },
+        "store_17": {
+          "type": "store",
+          "settings": {
+            "name": "Arthur Tweewielers",
+            "address": "Van Bijnkershoeklaan 413, Utrecht‎ 3527 XK",
+            "phone": "030 - 2936368",
+            "domain": "http://www.arthurtweewielers.nl/"
+          }
+        },
+        "store_20": {
+          "type": "store",
+          "settings": {
+            "name": "MC-Bos",
+            "address": "Amsterdamsestraatweg 959, Utrecht 3555 HR",
+            "phone": "030 - 2441775",
+            "domain": "http://www.mc-bos.nl/"
+          }
+        },
+        "store_316": {
+          "type": "store",
+          "settings": {
+            "name": "Methorst Bromfietsen",
+            "address": "Ahornstraat 42, Utrecht 3552 CH, Nederland",
+            "phone": "06 30512837",
+            "domain": "https://methorstbromfietsenshop.nl"
+          }
+        },
+        "store_8": {
+          "type": "store",
+          "settings": {
+            "name": "v.d. Tol Scooters",
+            "address": "Theemsdreef 21, Utrecht 3562 EA",
+            "phone": "030 - 261 45 28",
+            "domain": "http://www.tolscooters.nl/"
+          }
+        },
+        "store_55": {
+          "type": "store",
+          "settings": {
+            "name": "Scootstore Amsterdam",
+            "address": "Gaaspstraat 47 - 49, Amsterdam 1079 VD",
+            "phone": "020 - 404 00 22",
+            "domain": "https://www.scootstore.nl/"
+          }
+        },
+        "store_56": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter service",
+            "address": "Tugelaweg 1, Amsterdam 1092 VB, Nederland",
+            "phone": "020-4681999",
+            "domain": "https://www.scooter-service.nl/index.html"
+          }
+        },
+        "store_57": {
+          "type": "store",
+          "settings": {
+            "name": "Amsterdam's Scootercity",
+            "address": "Cornelis Trooststraat 19-23, Amsterdam 1072 JA",
+            "phone": "020-4708340",
+            "domain": "https://www.scootercity.nl/"
+          }
+        },
+        "store_62": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter One",
+            "address": "Spuistraat 251, Amsterdam 1012 VR",
+            "phone": "020 - 364 2415",
+            "domain": "http://scooterone.nl/"
+          }
+        },
+        "store_66": {
+          "type": "store",
+          "settings": {
+            "name": "Beumer de Jong Scooters",
+            "address": "Haarlemmermeerstraat 47 - 53, Amsterdam 1058 JP",
+            "phone": "020 - 615 7188",
+            "domain": "http://www.beumerdejong.nl"
+          }
+        },
+        "store_67": {
+          "type": "store",
+          "settings": {
+            "name": "Naaldwijk Scooters",
+            "address": "Ampèrestraat 1, Naaldwijk 2671 BX, Nederland",
+            "phone": "0174 - 624 470",
+            "domain": "https://www.naaldwijkscooters.nl/"
+          }
+        },
+        "store_69": {
+          "type": "store",
+          "settings": {
+            "name": "Joop Harmans Scooters XL",
+            "address": "Vuurwerkerweg 17 B, Amsterdam 1032 KN",
+            "phone": "020 - 636 97 52",
+            "domain": "http://www.joopharmansscooters.nl/"
+          }
+        },
+        "store_70": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Arena",
+            "address": "Vespuccistraat 26 -28, Amsterdam 1057 CM",
+            "phone": "020 - 683 73 65",
+            "domain": "http://www.scooterarena.nl/"
+          }
+        },
+        "store_72": {
+          "type": "store",
+          "settings": {
+            "name": "Scooterpoort",
+            "address": "Haarlemmerweg 135 - 137, Amsterdam 1051 KX",
+            "phone": "020 - 68 15 488",
+            "domain": "http://www.scooterpoort.nl/"
+          }
+        },
+        "store_75": {
+          "type": "store",
+          "settings": {
+            "name": "Firma van Laar",
+            "address": "Pieter Calandlaan 120, Amsterdam 1068 NP",
+            "phone": "020 - 6199896",
+            "domain": "http://www.firmavanlaar.nl"
+          }
+        },
+        "store_76": {
+          "type": "store",
+          "settings": {
+            "name": "Amsterdams Scooter Company",
+            "address": "Louis Couperusstraat 5, Amsterdam 1064 BZ, Nederland",
+            "phone": "020 7702183",
+            "domain": "https://www.amsterdamscootercompany.nl/"
+          }
+        },
+        "store_77": {
+          "type": "store",
+          "settings": {
+            "name": "De Ruijter scooters",
+            "address": "Admiraal de Ruijterweg 446, Amsterdam 1055 NG, Nederland",
+            "phone": "020-3317537",
+            "domain": "https://www.deruijterscooters.nl/"
+          }
+        },
+        "store_79": {
+          "type": "store",
+          "settings": {
+            "name": "Amsterdams Bromfietshuis",
+            "address": "Hoekenes 19 - 21, Amsterdam 1068 ML",
+            "phone": "020 - 6191938",
+            "domain": "http://www.bromfietshuis.com/"
+          }
+        },
+        "store_87": {
+          "type": "store",
+          "settings": {
+            "name": "Voordeelhelmen Amsterdam",
+            "address": "Jarmuiden 31, Amsterdam 1046 AC, Nederland",
+            "phone": "020-7600 807",
+            "domain": "https://www.voordeelhelmen.nl/"
+          }
+        },
+        "store_298": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Plaza West",
+            "address": "Johan Huizingalaan 185, Amsterdam 1065 JA, Nederland",
+            "phone": "020-3635609",
+            "domain": ""
+          }
+        },
+        "store_321": {
+          "type": "store",
+          "settings": {
+            "name": "Servizio Amsterdam",
+            "address": "Buitenveldertselaan 38, Amsterdam 1081 AA, Nederland",
+            "phone": "020-3376969",
+            "domain": "https://servizio-amsterdam.nl"
+          }
+        },
+        "store_330": {
+          "type": "store",
+          "settings": {
+            "name": "Scootermundo",
+            "address": "Buitenveldertselaan 38, Amsterdam 1081 AA, Nederland",
+            "phone": "06-55699008",
+            "domain": "https://scootermundo.nl/"
+          }
+        },
+        "store_46": {
+          "type": "store",
+          "settings": {
+            "name": "Scooterparadise",
+            "address": "Stekkenbergweg 3A, Amsterdam 1105 AH, Nederland",
+            "phone": "020 - 223 85 21",
+            "domain": "http://www.scooterparadise.nl/"
+          }
+        },
+        "store_194": {
+          "type": "store",
+          "settings": {
+            "name": "La Souris Rotterdam",
+            "address": "Burg. van Walsumweg 178, Rotterdam 3011 MZ, Nederland",
+            "phone": "085 - 065 31 55",
+            "domain": "https://www.lasourisscooters.nl/winkels/rotterdam"
+          }
+        },
+        "store_199": {
+          "type": "store",
+          "settings": {
+            "name": "Vai Vai Vespa",
+            "address": "Jonker Fransstraat 105 A, Rotterdam 3031 AP",
+            "phone": "010 - 240 61 61",
+            "domain": "http://vaivaivespa.com/"
+          }
+        },
+        "store_201": {
+          "type": "store",
+          "settings": {
+            "name": "Alblas Tweewielers",
+            "address": "Paul Krugerstraat 109 - 113, Rotterdam 3072 GE",
+            "phone": "010 - 4 85 39 59",
+            "domain": "http://www.alblastweewielers.nl/"
+          }
+        },
+        "store_213": {
+          "type": "store",
+          "settings": {
+            "name": "Cycle Centre Slinge",
+            "address": "Meyenhage 312 - 314, Rotterdam 3085 CH",
+            "phone": "010 - 481 0835",
+            "domain": ""
+          }
+        },
+        "store_217": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Motive",
+            "address": "Sluisjesdijk 68, Rotterdam 3087 AJ, Nederland",
+            "phone": "010 - 737 0031",
+            "domain": "https://www.scootermotive.nl/"
+          }
+        },
+        "store_221": {
+          "type": "store",
+          "settings": {
+            "name": "Scooterport Rotterdam",
+            "address": "Swaneblakestraat 10, Rotterdam 3044 EM",
+            "phone": "010 - 2308338",
+            "domain": "http://www.scooterport.nl/"
+          }
+        },
+        "store_318": {
+          "type": "store",
+          "settings": {
+            "name": "Rens Scooters",
+            "address": "Buislaan 42, Rotterdam 3028 VA, Nederland",
+            "phone": "010-2266969",
+            "domain": "https://www.rensscooters.nl"
+          }
+        },
+        "store_325": {
+          "type": "store",
+          "settings": {
+            "name": "Mega Scooter",
+            "address": "Koperhoek 4B, Rhoon 3162 LA, Nederland",
+            "phone": "010-4667788",
+            "domain": "https://www.megascooter.nl/"
+          }
+        },
+        "store_208": {
+          "type": "store",
+          "settings": {
+            "name": "Mi-Scoot",
+            "address": "Oude Middenweg 241 D, Den Haag 2491 AH",
+            "phone": "070 - 3175335",
+            "domain": "http://www.mi-scoot.nl/"
+          }
+        },
+        "store_223": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Voorburg",
+            "address": "Bruijnings Ingenhoeslaan 72, Voorburg 2273 KS",
+            "phone": "070 - 369 1377",
+            "domain": "http://www.scootervoorburg.nl/"
+          }
+        },
+        "store_224": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Ypenburg",
+            "address": "Laan van Waalhaven 275, Den Haag 2497GL",
+            "phone": "070 – 31 91 890",
+            "domain": "http://www.scooter-ypenburg.nl/"
+          }
+        },
+        "store_244": {
+          "type": "store",
+          "settings": {
+            "name": "La Souris Den Haag",
+            "address": "Loosduinseweg 373H, Den Haag 2571 AE, Nederland",
+            "phone": "085 - 065 31 58",
+            "domain": "https://www.lasourisscooters.nl/winkels/den-haag"
+          }
+        },
+        "store_249": {
+          "type": "store",
+          "settings": {
+            "name": "De Roode Scooters",
+            "address": "Loevesteinlaan 464 - 474, Den Haag, 2533 CG",
+            "phone": "070 - 396 66 66",
+            "domain": "http://www.deroodescooters.nl/"
+          }
+        },
+        "store_263": {
+          "type": "store",
+          "settings": {
+            "name": "Vermeulen Tweewielers",
+            "address": "Mandarijnstraat 10, Den Haag 2564 SX",
+            "phone": "070 - 3251169",
+            "domain": "http://vermeulen-scooters.nl/"
+          }
+        },
+        "store_265": {
+          "type": "store",
+          "settings": {
+            "name": "Stinne Scooter Parts",
+            "address": "Viandenstraat 7, Den Haag 2552 CA",
+            "phone": "070 - 3979070",
+            "domain": "http://www.collections2wielers.nl/"
+          }
+        },
+        "store_299": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter Center Nederland Den Haag",
+            "address": "Rijswijkseweg 184, 's-Gravenhage 2516 EL, Nederland",
+            "phone": "070-4492852",
+            "domain": "https://scootercenternederland.nl/"
+          }
+        },
+        "store_308": {
+          "type": "store",
+          "settings": {
+            "name": "Revro 2 Wielers",
+            "address": "Thomsonplein 12a, Den Haag 2565 KT, Nederland",
+            "phone": "070–2044020",
+            "domain": "https://revro2wielers.nl/"
+          }
+        },
+        "store_324": {
+          "type": "store",
+          "settings": {
+            "name": "Scooter 070",
+            "address": "Boekhorststraat 74, Den Haag 2512 CT, Nederland",
+            "phone": "070-4448195",
+            "domain": "https://scooter070.nl/"
+          }
+        },
+        "store_86": {
+          "type": "store",
+          "settings": {
+            "name": "La Souris Arnhem",
+            "address": "Jansbinnensingel 29, Arnhem 6811 AL, Nederland",
+            "phone": "085 - 130 68 73",
+            "domain": "https://www.lasourisscooters.nl/winkels/arnhem"
+          }
+        },
+        "store_91": {
+          "type": "store",
+          "settings": {
+            "name": "Reerink Rijwielen",
+            "address": "Huissensestraat 45, Arnhem 6833 HL, Nederland",
+            "phone": "026 - 321 82 84",
+            "domain": "https://www.reerinkrijwielen.nl/"
+          }
+        },
+        "store_95": {
+          "type": "store",
+          "settings": {
+            "name": "Reerink Rijwielen",
+            "address": "Geitenkamp 4, Arnhem 6823 HE, Nederland",
+            "phone": "026 - 351 36 15",
+            "domain": "http://www.reerinkrijwielen.nl/"
+          }
+        },
+        "store_109": {
+          "type": "store",
+          "settings": {
+            "name": "Reerink Rijwielen",
+            "address": "Dorpstraat 90, Westervoort 6931 BM, Nederland",
+            "phone": "026 - 311 67 43",
+            "domain": "https://www.reerinkrijwielen.nl"
+          }
+        },
+        "store_111": {
+          "type": "store",
+          "settings": {
+            "name": "Jos Huisman Tweewielers",
+            "address": "Hatertseveldweg 283, Nijmegen 6532 XR",
+            "phone": "024 - 37 89 89 5",
+            "domain": "http://www.huismantweewielers.nl/"
+          }
+        },
+        "store_113": {
+          "type": "store",
+          "settings": {
+            "name": "Termaat Motoren",
+            "address": "Hertogstraat 74, Nijmegen 6511 SE",
+            "phone": "024 - 322 9575",
+            "domain": "http://www.termaatmotoren.nl/"
+          }
+        },
+        "store_150": {
+          "type": "store",
+          "settings": {
+            "name": "La Souris Eindhoven",
+            "address": "Keizer Karel V Singel 4, Eindhoven 5615 PE, Nederland",
+            "phone": "085 - 065 31 57",
+            "domain": "https://www.lasourisscooters.nl/winkels/eindhoven"
+          }
+        },
+        "store_239": {
+          "type": "store",
+          "settings": {
+            "name": "Van den Burg Scooters",
+            "address": "Bisschop Bekkerslaan 8, Eindhoven 5628 RA",
+            "phone": "040 – 2418627",
+            "domain": "http://www.burg-bromfietsen.nl/"
+          }
+        }
+      },
+      "block_order": [
+        "store_9",
+        "store_13",
+        "store_17",
+        "store_20",
+        "store_316",
+        "store_8",
+        "store_55",
+        "store_56",
+        "store_57",
+        "store_62",
+        "store_66",
+        "store_67",
+        "store_69",
+        "store_70",
+        "store_72",
+        "store_75",
+        "store_76",
+        "store_77",
+        "store_79",
+        "store_87",
+        "store_298",
+        "store_321",
+        "store_330",
+        "store_46",
+        "store_194",
+        "store_199",
+        "store_201",
+        "store_213",
+        "store_217",
+        "store_221",
+        "store_318",
+        "store_325",
+        "store_208",
+        "store_223",
+        "store_224",
+        "store_244",
+        "store_249",
+        "store_263",
+        "store_265",
+        "store_299",
+        "store_308",
+        "store_324",
+        "store_86",
+        "store_91",
+        "store_95",
+        "store_109",
+        "store_111",
+        "store_113",
+        "store_150",
+        "store_239"
+      ],
+      "name": "Map",
+      "settings": {
+        "google_maps_api_key": "AIzaSyCatNvq46C8acFVqJaxomJNOOOWIxzYvp4",
+        "section_width": "full-width",
+        "page_margin": true,
+        "section_height": "large",
+        "section_height_custom": 72,
+        "color_scheme": "",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "padding-block-start": 48,
+        "padding-block-end": 100,
+        "map_styles": "[\n    {\n        \"featureType\": \"all\",\n        \"elementType\": \"geometry\",\n        \"stylers\": [\n            {\n                \"visibility\": \"on\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"all\",\n        \"elementType\": \"labels\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.country\",\n        \"elementType\": \"all\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.province\",\n        \"elementType\": \"all\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.locality\",\n        \"elementType\": \"labels\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.locality\",\n        \"elementType\": \"labels.text.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#2c2c2c\"\n            },\n            {\n                \"weight\": \"2.00\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.neighborhood\",\n        \"elementType\": \"labels\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"administrative.neighborhood\",\n        \"elementType\": \"labels.text.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#696969\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"landscape\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#ffffff\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"landscape.man_made\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"poi\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"poi.park\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#f6f6f6\"\n            },\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"weight\": \"0.50\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.highway\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#565656\"\n            },\n            {\n                \"weight\": \"0.50\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.highway\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            },\n            {\n                \"weight\": \"0.01\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.highway.controlled_access\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"weight\": \"0.50\"\n            },\n            {\n                \"color\": \"#8e8e8e\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.highway.controlled_access\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.arterial\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#000000\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.arterial\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            },\n            {\n                \"weight\": \"0.50\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.local\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#b7b7b7\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"road.local\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"transit.line\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#404040\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"transit.line\",\n        \"elementType\": \"geometry.stroke\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"transit.station\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"visibility\": \"off\"\n            }\n        ]\n    },\n    {\n        \"featureType\": \"water\",\n        \"elementType\": \"geometry.fill\",\n        \"stylers\": [\n            {\n                \"color\": \"#dedede\"\n            }\n        ]\n    }\n]"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "map_6FQUBY"
+  ]
+}
