@@ -4717,7 +4717,7 @@
                 "custom_width": 70,
                 "width_mobile": "fill",
                 "custom_width_mobile": 100,
-                "height": "fit",
+                "height": "fit" ,
                 "custom_height": 100,
                 "hide_on_mobile": false,
                 "inherit_color_scheme": true,
