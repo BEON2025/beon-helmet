@@ -1,0 +1,84 @@
+{% comment %}theme-check-disable LiquidTag{% endcomment %}
+{%- liquid
+  assign manufacturer = closest.product.vendor
+  assign specification_labels = closest.product.metafields.custom.specifications | metafield_tag: field: 'label'
+  assign specification_values = closest.product.metafields.custom.specifications | metafield_tag: field: 'value'
+  assign product_type = product.type
+  assign available_sizes = closest.product.variants | map: 'option1' | join: ', '
+  assign min_weight = null
+  for variant in closest.product.variants
+    assign weight_measurement = variant.metafields.custom.helmet_weight.value
+    if weight_measurement != blank
+      assign weight = weight_measurement.value | plus: 0
+      if weight > 0
+        if min_weight == null or weight < min_weight
+          assign min_weight = weight
+        endif
+      endif
+    endif
+  endfor
+  assign weight_info = min_weight
+  assign sku_list = closest.product.variants | map: 'sku' | join: ', '
+-%}
+
+<div class="specification-table">
+  <div class="spec-left">
+    <div class="manufacturer-label">Manufacturer</div>
+    <div class="specification-labels">{{ specification_labels }}</div>
+    <div class="type-label">Type</div>
+    <div class="sizes-label">Available Sizes</div>
+    <div class="weight-label">Weight (starting at)</div>
+    <div class="sku-label">SKUs</div>
+  </div>
+
+  <div class="spec-right">
+    <div class="manufacturer-value">{{ manufacturer }}</div>
+    <div class="specification-values">{{ specification_values }}</div>
+    <div class="type-value">{{ product_type }}</div>
+    <div class="sizes-value">{{ available_sizes }}</div>
+    <div class="weight-value">{{ weight_info | round }} g</div>
+    <div class="sku-value">{{ sku_list }}</div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .specification-table {
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr;
+    gap: 5rem;
+  }
+
+  .spec-left {
+    grid-column: 1 / 3;
+    height: fit-content;
+    text-align: right;
+  }
+  .spec-right {
+    grid-column: 3 / 5;
+    width: 50%;
+  }
+  @media (max-width: 904px) {
+    .spec-right {
+      width: 70%;
+    }
+  }
+  @media (max-width: 531px) {
+    .specification-table {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    .spec-left,
+    .spec-right {
+      grid-column: 1 / 2;
+      text-align: left;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product Specifications",
+  "tag": "div",
+  "class": "product-specifications-block",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,105 @@
+{% assign block_settings = block.settings %}
+
+<div
+  class="
+    multicolumn-carousel-title spacing-style
+    {% if block_settings.inherit_color_scheme == false %}color-{{ block_settings.color_scheme }}{% endif %}
+  "
+  style="
+    {%- render 'spacing-style', settings: block_settings -%}
+    --text-align: {{ block_settings.alignment }};
+  "
+  {{ block.shopify_attributes }}
+>
+  {% if block_settings.text != blank %}
+    <div class="multicolumn-carousel-title__text rte">
+      {{ block_settings.text }}
+    </div>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .multicolumn-carousel-title {
+    text-align: var(--text-align);
+    width: 100%;
+  }
+
+  .multicolumn-carousel-title__text {
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.title",
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "default": "<h2>Multicolumn Carousel</h2>"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "right",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "inherit_color_scheme",
+      "label": "t:settings.inherit_color_scheme",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1",
+      "visible_if": "{{ block.settings.inherit_color_scheme == false }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    }
+  ]
+}
+{% endschema %}

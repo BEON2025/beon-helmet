@@ -1,0 +1,199 @@
+{% doc %}
+  Form block - Renders a Shopify Forms app form
+
+  @example
+  {% content_for 'block', type: 'form', id: 'contact-form' %}
+{% enddoc %}
+
+{% liquid
+  assign has_form_app = false
+
+  for inner_block in block.blocks
+    if inner_block.type == '@app'
+      assign has_form_app = true
+      break
+    endif
+  endfor
+%}
+
+<div
+  class="form-block"
+  {{ block.shopify_attributes }}
+  style="--form-min-height: {{ block.settings.min_height }}px; --form-max-width: {{ block.settings.max_width }}px;"
+  data-max-width="{{ block.settings.max_width }}"
+>
+  <div class="form-block__container">
+    {%- if has_form_app -%}
+      <div class="form-block__form">
+        {%- for inner_block in block.blocks -%}
+          {%- if inner_block.type == '@app' -%}
+            {% render inner_block %}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="form-block__placeholder">
+        <p>Please add a Shopify Forms app block to display a form here.</p>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const observer = new MutationObserver((mutationsList, observer) => {
+      const form = document.querySelector(`#shopify-section-{{ section.id }} #app-embed`);
+
+      if (form) {
+        observer.disconnect();
+        const shadow = form.shadowRoot;
+
+        if (shadow) {
+          // Get max width from form block
+          const formBlock = document.querySelector(`#shopify-section-{{ section.id }} .form-block`);
+          const maxWidth = formBlock?.dataset.maxWidth || '400';
+
+          // Create and inject style element
+          const style = document.createElement('style');
+          style.textContent = `
+              :host {
+                --inline-container-max-width: ${maxWidth}px !important;
+              }
+
+              label, span:not([class*="DownIcon"]), legend, input, textarea, p[class*="_label_"], p[class*="_textBody_"] {
+                font-size: var(--font-paragraph--size) !important;
+                line-height: var(--font-paragraph--line-height) !important;
+                color: var(--color-text) !important;
+              }
+  
+             input, textarea {
+                border-radius: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background-color: transparent !important;
+              }
+              
+              input:focus, textarea:focus {
+                box-shadow: none !important;
+              }
+  
+              form {
+                gap: var(--gap-lg) !important;
+              }
+  
+              [class^="_formFieldContainer"] {
+                border-bottom: var(--style-border-width-inputs) solid var(--color-input-border) !important;
+                margin-left: calc(-1 * var(--form-field-padding)) !important;
+                margin-right: calc(-1 * var(--form-field-padding)) !important;
+                flex: 1 1 100% !important;
+              }
+  
+              fieldset {
+                border: 1px solid var(--color-input-border) !important;
+                padding: var(--gap-lg) !important;
+              }
+
+              legend {
+                padding-top: var(--gap-3xl) !important;
+              }
+  
+              fieldset legend {
+                padding: 0 var(--gap-lg) !important;
+              }
+              
+              button[aria-controls*="dropdown"] {
+                background-color: var(--color-background);
+              }
+
+             button[aria-controls="country-selector-dropdown"] {
+                width: 85%;
+                margin-top: 4px;
+              }
+
+              button[aria-controls="custom#request_type-selector-dropdown"] {
+                border-color: var(--color-input-border);
+                background-color: var(--color-background);
+              }
+
+              button[aria-label="Attachment"] {
+                border-color: var(--color-input-border);
+                border-width: var(--style-border-width-inputs);
+                background-color: var(--color-background);
+                p, p:hover {
+                    background-color: var(--color-background);
+                    color: var(--color-text);
+                }
+              }
+
+              button[type="submit"] {
+                border-radius: var(--style-border-radius-buttons-primary) !important;
+                font-size: var(--font-paragraph--size) !important;
+              }
+            `;
+
+          // Add style to shadow DOM
+          shadow.appendChild(style);
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+</script>
+
+{% stylesheet %}
+  .shopify-block:has(.form-block) {
+    min-width: 100%;
+  }
+
+  .form-block {
+    min-height: var(--form-min-height, 400px);
+  }
+
+  .form-block__container {
+    width: 100%;
+  }
+
+  .form-block__form {
+    width: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.form",
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:blocks.form.settings.max_width.label",
+      "min": 200,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "t:blocks.form.settings.min_height.label",
+      "min": 200,
+      "max": 2000,
+      "step": 50,
+      "unit": "px",
+      "default": 400
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.form",
+      "category": "t:categories.forms"
+    }
+  ]
+}
+{% endschema %}

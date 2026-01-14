@@ -1,0 +1,118 @@
+{%- doc -%}
+  This block displays a login button for non-logged-in customers on product pages.
+  When clicked, it shows a login dialog encouraging customers to sign in to purchase.
+
+  @param {string} [dealer_account_button_label] - Label for the dealer account button
+  @param {string} [dealer_account_button_url] - URL for the dealer account button
+{%- enddoc -%}
+
+{% liquid
+  if block.settings.dealer_account_button_label != blank
+    assign dealer_button_label = block.settings.dealer_account_button_label
+  else
+    assign dealer_button_label = 'actions.request_dealer_account' | t
+  endif
+%}
+
+{% unless customer %}
+  <script src="{{ 'dialog.js' | asset_url }}" type="module"></script>
+
+  <dialog-component {{ block.shopify_attributes }}>
+    <button
+      type="button"
+      class="button {{ block.settings.style_class }}"
+      on:click="/showDialog"
+    >
+      {{ 'actions.log_in' | t }}
+    </button>
+
+    <dialog
+      ref="dialog"
+      class="popup-link__content dialog-modal color-{{ settings.popover_color_scheme }}"
+      scroll-lock
+    >
+      <h3>{{ 'products.product.login_required_title' | t }}</h3>
+
+      <p>{{ 'products.product.login_required_message' | t }}</p>
+
+      <div class="account-login-actions__buttons" style="display: flex; gap: var(--gap-lg);">
+        <script
+          src="{{ 'account-login-actions.js' | asset_url }}"
+          type="module"
+          fetchpriority="low"
+        ></script>
+
+        <account-login-actions style="display: none">
+          {{ shop | login_button }}
+        </account-login-actions>
+
+        <a
+          href="{% if request.design_mode %}{{ routes.account_url }}{% else %}{{ routes.storefront_login_url }}{% endif %}"
+          class="button button-primary"
+        >
+          {{ 'actions.log_in' | t }}
+        </a>
+
+        {% if block.settings.dealer_account_button_url != blank %}
+          <a
+            href="{{ block.settings.dealer_account_button_url }}"
+            class="button button-secondary"
+          >
+            {{ dealer_button_label }}
+          </a>
+        {% endif %}
+      </div>
+
+      <button
+        ref="closeButton"
+        on:click="/closeDialog"
+        class="button button-unstyled close-button popup-link__close"
+        style="display: none"
+        aria-label="{{ 'actions.close_dialog' | t }}"
+      >
+        {{- 'icon-close.svg' | inline_asset_content -}}
+      </button>
+    </dialog>
+  </dialog-component>
+{% endunless %}
+
+{% schema %}
+{
+  "name": "t:names.sign_in_button",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "style_class",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "button",
+          "label": "t:options.primary"
+        },
+        {
+          "value": "button-secondary",
+          "label": "t:options.secondary"
+        }
+      ],
+      "default": "button"
+    },
+    {
+      "type": "header",
+      "content": "t:content.dealer_account_button"
+    },
+    {
+      "type": "text",
+      "id": "dealer_account_button_label",
+      "label": "t:settings.dealer_account_button_label",
+      "info": "t:info.dealer_account_button_label"
+    },
+    {
+      "type": "url",
+      "id": "dealer_account_button_url",
+      "label": "t:settings.dealer_account_button_url",
+      "info": "t:info.dealer_account_button_url"
+    }
+  ]
+}
+{% endschema %}
