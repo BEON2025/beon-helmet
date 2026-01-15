@@ -11,6 +11,12 @@
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
   assign first_3d_model = selected_product.media | where: 'media_type', 'model' | first
+  
+  # Detect if product is a visor by checking the compatible_helmet metafield
+  assign is_visor = false
+  if selected_product.metafields.custom.compatible_helmet != blank
+    assign is_visor = true
+  endif
 
   if block_settings.hide_variants
     assign variant_images = selected_product.images | where: 'attached_to_variant?', true | map: 'src'
@@ -244,6 +250,40 @@
       background-color: var(--color-background);
     }
   {% endif %}
+
+  /* Visor product page - fixed size 300x280 */
+  {% if is_visor %}
+    .product-media-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .product-media-container .product-media {
+      width: 500px;
+      height: 480px;
+      max-width: 500px;
+      max-height: 480px;
+      margin: 0 auto;
+    }
+
+    .product-media-container .product-media img,
+    .product-media-container .product-media .deferred-media__poster-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain !important;
+    }
+
+    /* Mobile - slightly smaller */
+    @media screen and (max-width: 749px) {
+      .product-media-container .product-media {
+        width: 280px;
+        height: 260px;
+        max-width: 280px;
+        max-height: 260px;
+      }
+    }
+  {% endif %}
 {% endstyle %}
 
 {% liquid
@@ -390,7 +430,7 @@
         <li
           ref="media[]"
           class="{{ product_media_container_class }} product-media-container--{{ media.media_type }}"
-          style="{% if block_settings.aspect_ratio == 'adapt' %} --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};{% endif %}"
+          style="{% if block_settings.aspect_ratio == 'adapt' %} --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};{% endif %}{% if is_visor %} height:500px; display:flex; justify-content:center; align-items:center;{% endif %}"
           {% if settings.transition_to_main_product and forloop.first %}
             data-view-transition-type="product-image-transition"
           {% endif %}
