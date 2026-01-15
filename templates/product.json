@@ -4411,6 +4411,30 @@
         "padding-block-end": 0
       }
     },
+    "compatible_visors_d8JJnz": {
+      "type": "compatible-visors",
+      "settings": {
+        "heading": "Compatible Visors",
+        "heading_size": "h2",
+        "description": "Upgrade your helmet with a replacement visor",
+        "visor_collection": "visors",
+        "view_all_url": "shopify://collections/visors",
+        "view_all_text": "View all visors",
+        "layout_type": "carousel",
+        "carousel_on_mobile": true,
+        "max_products": 5,
+        "columns": 4,
+        "mobile_columns": "2",
+        "columns_gap": 32,
+        "rows_gap": 16,
+        "color_scheme": "",
+        "section_width": "page-width",
+        "page_margin": false,
+        "gap": 24,
+        "padding-block-start": 60,
+        "padding-block-end": 60
+      }
+    },
     "product_recommendations_qggXJq": {
       "type": "product-recommendations",
       "blocks": {
@@ -4693,8 +4717,8 @@
                 "custom_width": 70,
                 "width_mobile": "fill",
                 "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
+                "height": "fit" ,
+                "custom_height":100,
                 "hide_on_mobile": false,
                 "inherit_color_scheme": true,
                 "color_scheme": "",
@@ -5882,6 +5906,7 @@
     "hero_VgbpFL",
     "section_H36Kaq",
     "divider_DG8RkJ",
+    "compatible_visors_d8JJnz",
     "product_recommendations_qggXJq",
     "section_qWytjN",
     "section_BYC46e",

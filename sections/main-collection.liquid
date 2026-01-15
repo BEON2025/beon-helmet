@@ -4,22 +4,6 @@
   fetchpriority="low"
 ></script>
 
-{% javascript %}
-  const url = new URL(window.location.href);
-  if (url.hash) {
-    document.addEventListener(
-      'DOMContentLoaded',
-      () => {
-        const card = document.getElementById(url.hash.slice(1));
-        if (card) {
-          card.scrollIntoView({ behavior: 'instant' });
-        }
-      },
-      { once: true }
-    );
-  }
-{% endjavascript %}
-
 {% comment %} We always render this full-width, as the child blocks have width: page/full settings {% endcomment %}
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <results-list
@@ -39,20 +23,37 @@
       results_size: collection.products_count
     %}
 
+    {%- liquid
+      # Default to newest first if no sort is applied
+      assign sort_by = collection.sort_by | default: collection.default_sort_by
+      if collection.sort_by == blank and collection.default_sort_by == 'manual'
+        assign sort_by = 'created-descending'
+      endif
+    -%}
+
     {% paginate collection.products by 24 %}
       {% capture children %}
         {% for product in collection.products %}
-          <li
-            id="{{ section.id }}-{{ product.id }}"
-            class="product-grid__item product-grid__item--{{ forloop.index0 }}"
-            data-page="{{ paginate.current_page }}"
-            data-product-id="{{ product.id }}"
-            ref="cards[]"
-          >
-            {% # theme-check-disable %}
-            {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
-            {% # theme-check-enable %}
-          </li>
+          {% assign product_title_downcase = product.title | downcase %}
+          {% assign collection_handle_downcase = collection.handle | downcase %}
+          {% comment %} Skip visor products unless we're on the visors collection {% endcomment %}
+          {% assign should_skip = false %}
+          {% if product_title_downcase contains 'visor' and collection_handle_downcase != 'visors' %}
+            {% assign should_skip = true %}
+          {% endif %}
+          {% unless should_skip %}
+            <li
+              id="{{ section.id }}-{{ product.id }}"
+              class="product-grid__item product-grid__item--{{ forloop.index0 }}"
+              data-page="{{ paginate.current_page }}"
+              data-product-id="{{ product.id }}"
+              ref="cards[]"
+            >
+              {% # theme-check-disable %}
+              {% content_for 'block', type: '_product-card', id: 'product-card', closest.product: product %}
+              {% # theme-check-enable %}
+            </li>
+          {% endunless %}
         {% endfor %}
       {% endcapture %}
 

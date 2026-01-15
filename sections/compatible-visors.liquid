@@ -1,0 +1,512 @@
+{% liquid
+  # Detect helmet model from product title
+  assign helmet_model = ''
+  assign title_downcase = product.title | downcase
+  
+  if title_downcase contains 'stratos'
+    assign helmet_model = 'Stratos'
+  elsif title_downcase contains 'stradale'
+    assign helmet_model = 'Stradale'
+  endif
+  
+  # Get visor collection
+  assign visor_collection = collections[section.settings.visor_collection]
+  
+  # Count compatible visors
+  assign visor_count = 0
+  
+  # Only count visors if we detected a helmet model
+  if visor_collection != blank and helmet_model != blank
+    for visor in visor_collection.products
+      assign visor_helmet = visor.metafields.custom.compatible_helmet
+      if visor_helmet == helmet_model and visor.id != product.id
+        assign visor_count = visor_count | plus: 1
+      endif
+    endfor
+  endif
+  
+  # Only show section if there are compatible visors or in design mode
+  assign show_section = false
+  if visor_count > 0 and helmet_model != blank
+    assign show_section = true
+  elsif request.design_mode
+    assign show_section = true
+  endif
+
+  # Layout styles
+  case section.settings.layout_type
+    when 'grid'
+      assign classes = 'resource-list--grid'
+    when 'carousel'
+      assign classes = 'resource-list__carousel'
+  endcase
+
+  capture styles
+    echo '--column-count-mobile: ' | append: section.settings.mobile_columns | append: ';'
+    echo '--resource-list-column-gap-desktop: ' | append: section.settings.columns_gap | append: 'px;'
+    echo '--resource-list-row-gap-desktop: ' | append: section.settings.rows_gap | append: 'px;'
+    echo '--resource-list-columns: repeat(' | append: section.settings.columns | append: ', 1fr);'
+    echo '--resource-list-columns-mobile: repeat(' | append: section.settings.mobile_columns | append: ', 1fr);'
+    echo '--column-count: ' | append: section.settings.columns | append: ';'
+  endcapture
+%}
+
+{% if show_section %}
+  <div
+    id="compatible-visors-{{ section.id }}"
+    class="compatible-visors"
+    data-section-id="{{ section.id }}"
+    data-helmet-model="{{ helmet_model }}"
+    {{ section.shopify_attributes }}
+  >
+    <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+    <div
+      class="
+        section
+        section--{{ section.settings.section_width }}
+        {% if section.settings.page_margin %} section--full-width-margin{% endif %}
+        color-{{ section.settings.color_scheme }}
+        section-resource-list
+        spacing-style
+        gap-style
+      "
+      style="
+        {% render 'spacing-style', settings: section.settings %}
+        {% render 'gap-style', value: section.settings.gap %}
+        {{ styles }}
+      "
+    >
+      {%- if section.settings.heading != blank or section.settings.description != blank -%}
+        <div class="compatible-visors__header">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="compatible-visors__title {{ section.settings.heading_size }}">
+              {{ section.settings.heading }}
+            </h2>
+          {%- endif -%}
+          {%- if section.settings.description != blank -%}
+            <p class="compatible-visors__description">{{ section.settings.description }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {% if visor_count > 0 %}
+        {% capture list_items %}
+          {% assign items_shown = 0 %}
+          {% for visor in visor_collection.products %}
+            {% assign visor_helmet = visor.metafields.custom.compatible_helmet %}
+            {% assign should_show = false %}
+            {% comment %} Only show visors that match the helmet model {% endcomment %}
+            {% if helmet_model != blank and visor_helmet == helmet_model %}
+              {% assign should_show = true %}
+            {% endif %}
+            {% comment %} Don't show the current product in the carousel {% endcomment %}
+            {% if visor.id == product.id %}
+              {% assign should_show = false %}
+            {% endif %}
+            {% if should_show and items_shown < section.settings.max_products %}
+              {% assign items_shown = items_shown | plus: 1 %}
+              <div class="resource-list__item">
+                <div class="visor-card">
+                  <a href="{{ visor.url }}" class="visor-card__link">
+                    <div class="visor-card__image">
+                      {% if visor.featured_image %}
+                        {{ visor.featured_image | image_url: width: 400 | image_tag: 
+                          loading: 'lazy',
+                          widths: '200, 300, 400',
+                          sizes: '(max-width: 749px) 50vw, 25vw',
+                          class: 'visor-card__img'
+                        }}
+                      {% else %}
+                        <div class="visor-card__placeholder">
+                          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div class="visor-card__info">
+                      <h3 class="visor-card__title">{{ visor.title }}</h3>
+                      <div class="visor-card__price">
+                        {{ visor.price | money }}
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {% if items_shown < visor_count and items_shown < section.settings.max_products %}
+                <!--@list/split-->
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endcapture %}
+
+        {% liquid
+          assign slide_content = list_items | strip
+          assign slides = slide_content | split: '<!--@list/split-->'
+          assign display_count = visor_count
+          if display_count > section.settings.max_products
+            assign display_count = section.settings.max_products
+          endif
+        %}
+
+        <div
+          class="
+            resource-list
+            {% if section.settings.layout_type == 'carousel' %}
+              force-full-width
+            {% endif %}
+            {% if section.settings.carousel_on_mobile and section.settings.layout_type != 'carousel' %}
+              hidden--mobile
+            {% endif %}
+            {{ classes }}
+          "
+          data-has-visors="true"
+        >
+          {% case section.settings.layout_type %}
+            {% when 'grid' %}
+              {{ list_items }}
+            {% when 'carousel' %}
+              {% render 'resource-list-carousel',
+                ref: 'compatibleVisorsCarousel',
+                slides: slides,
+                slide_count: display_count,
+                settings: section.settings
+              %}
+          {% endcase %}
+        </div>
+
+        {% if section.settings.carousel_on_mobile and section.settings.layout_type != 'carousel' %}
+          <div
+            class="
+              resource-list
+              hidden--desktop
+              force-full-width
+            "
+            style="
+              --resource-list-gap: {{ section.settings.columns_gap }}px;
+              --column-count: {{ section.settings.columns }};
+            "
+          >
+            {% render 'resource-list-carousel',
+              ref: 'compatibleVisorsCarouselMobile',
+              slides: slides,
+              slide_count: display_count,
+              settings: section.settings
+            %}
+          </div>
+        {% endif %}
+
+        {% if section.settings.view_all_url != blank %}
+          <div class="compatible-visors__view-all">
+            <a href="{{ section.settings.view_all_url }}" class="button button--secondary">
+              {{ section.settings.view_all_text | default: 'View all visors' }}
+            </a>
+          </div>
+        {% endif %}
+
+      {% elsif request.design_mode %}
+        <div class="compatible-visors__empty-state">
+          <p>
+            <strong>Compatible Visors Section</strong><br>
+            {% if helmet_model == blank %}
+              No helmet model detected. Product title should contain "Stratos" or "Stradale".
+            {% elsif visor_collection == blank %}
+              No visor collection selected. Choose a collection in section settings.
+            {% else %}
+              No visors found with compatible_helmet metafield set to "{{ helmet_model }}".
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .compatible-visors .resource-list {
+    max-width: 75%;
+    margin-inline: auto;
+  }
+
+  .compatible-visors__header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg, 2rem);
+  }
+
+  .compatible-visors__title {
+    margin: 0 0 0.5rem;
+  }
+
+  .compatible-visors__description {
+    margin: 0;
+    opacity: 0.8;
+    max-width: 60ch;
+    margin-inline: auto;
+  }
+
+  .compatible-visors__view-all {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-lg, 2rem);
+  }
+
+  .compatible-visors__empty-state {
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  /* Visor Card Styles */
+  .visor-card {
+    width: 100%;
+    max-width: 180px;
+    margin-inline: auto;
+  }
+
+  .visor-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .visor-card__image {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    overflow: hidden;
+    border-radius: var(--border-radius, 8px);
+    background: rgba(0, 0, 0, 0.03);
+    margin-inline: auto;
+  }
+
+  .visor-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .visor-card__link:hover .visor-card__img {
+    transform: scale(1.05);
+  }
+
+  .visor-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .visor-card__placeholder .placeholder-svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .visor-card__info {
+    padding: 0.75rem 0 0;
+  }
+
+  .visor-card__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: normal;
+    line-height: 1.3;
+  }
+
+  .visor-card__price {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Compatible Visors",
+  "tag": "section",
+  "class": "compatible-visors-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Compatible Visors"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h1", "label": "Extra Large" },
+        { "value": "h2", "label": "Large" },
+        { "value": "h3", "label": "Medium" },
+        { "value": "h4", "label": "Small" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Upgrade your helmet with a replacement visor"
+    },
+    {
+      "type": "header",
+      "content": "Visor Collection"
+    },
+    {
+      "type": "collection",
+      "id": "visor_collection",
+      "label": "Visor collection"
+    },
+    {
+      "type": "header",
+      "content": "View All Button"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all link"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View all text",
+      "default": "View all visors"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout_type",
+      "label": "Layout style",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "carousel", "label": "Carousel" }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "carousel_on_mobile",
+      "label": "Show carousel on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Maximum visors to show",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Columns (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Column gap",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "rows_gap",
+      "label": "Row gap",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Section Style"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page width" },
+        { "value": "full-width", "label": "Full width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "checkbox",
+      "id": "page_margin",
+      "label": "Add page margin",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Content gap",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Padding top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Compatible Visors"
+    }
+  ]
+}
+{% endschema %}
