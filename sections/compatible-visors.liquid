@@ -15,27 +15,19 @@
   # Count compatible visors
   assign visor_count = 0
   
-  if visor_collection != blank
-    if helmet_model != blank
-      for visor in visor_collection.products
-        assign visor_helmet = visor.metafields.custom.compatible_helmet
-        if visor_helmet == helmet_model and visor.id != product.id
-          assign visor_count = visor_count | plus: 1
-        endif
-      endfor
-    else
-      # No helmet model - show all visors from collection
-      for visor in visor_collection.products
-        if visor.id != product.id
-          assign visor_count = visor_count | plus: 1
-        endif
-      endfor
-    endif
+  # Only count visors if we detected a helmet model
+  if visor_collection != blank and helmet_model != blank
+    for visor in visor_collection.products
+      assign visor_helmet = visor.metafields.custom.compatible_helmet
+      if visor_helmet == helmet_model and visor.id != product.id
+        assign visor_count = visor_count | plus: 1
+      endif
+    endfor
   endif
   
   # Only show section if there are compatible visors or in design mode
   assign show_section = false
-  if visor_count > 0
+  if visor_count > 0 and helmet_model != blank
     assign show_section = true
   elsif request.design_mode
     assign show_section = true
@@ -103,9 +95,8 @@
           {% for visor in visor_collection.products %}
             {% assign visor_helmet = visor.metafields.custom.compatible_helmet %}
             {% assign should_show = false %}
-            {% if helmet_model == blank %}
-              {% assign should_show = true %}
-            {% elsif visor_helmet == helmet_model %}
+            {% comment %} Only show visors that match the helmet model {% endcomment %}
+            {% if helmet_model != blank and visor_helmet == helmet_model %}
               {% assign should_show = true %}
             {% endif %}
             {% comment %} Don't show the current product in the carousel {% endcomment %}
