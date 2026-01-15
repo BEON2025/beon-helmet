@@ -19,13 +19,17 @@
     if helmet_model != blank
       for visor in visor_collection.products
         assign visor_helmet = visor.metafields.custom.compatible_helmet
-        if visor_helmet == helmet_model
+        if visor_helmet == helmet_model and visor.id != product.id
           assign visor_count = visor_count | plus: 1
         endif
       endfor
     else
       # No helmet model - show all visors from collection
-      assign visor_count = visor_collection.products.size
+      for visor in visor_collection.products
+        if visor.id != product.id
+          assign visor_count = visor_count | plus: 1
+        endif
+      endfor
     endif
   endif
   
@@ -103,6 +107,10 @@
               {% assign should_show = true %}
             {% elsif visor_helmet == helmet_model %}
               {% assign should_show = true %}
+            {% endif %}
+            {% comment %} Don't show the current product in the carousel {% endcomment %}
+            {% if visor.id == product.id %}
+              {% assign should_show = false %}
             {% endif %}
             {% if should_show and items_shown < section.settings.max_products %}
               {% assign items_shown = items_shown | plus: 1 %}
