@@ -11,6 +11,12 @@
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
   assign first_3d_model = selected_product.media | where: 'media_type', 'model' | first
+  
+  # Detect if product is a visor by checking the compatible_helmet metafield
+  assign is_visor = false
+  if selected_product.metafields.custom.compatible_helmet != blank
+    assign is_visor = true
+  endif
 
   if block_settings.hide_variants
     assign variant_images = selected_product.images | where: 'attached_to_variant?', true | map: 'src'
@@ -242,6 +248,26 @@
   {% if block_settings.media_fit == 'contain' %}
     .media-fit-contain :is(img, .deferred-media__poster-image) {
       background-color: var(--color-background);
+    }
+  {% endif %}
+
+  /* Scale down visor images to prevent low quality display */
+  {% if is_visor %}
+    .product-media-container .product-media {
+      max-width: 60%;
+      margin: 0 auto;
+    }
+
+    /* Smaller on mobile */
+    @media screen and (max-width: 749px) {
+      .product-media-container .product-media {
+        max-width: 70%;
+      }
+    }
+
+    /* Maintain aspect ratio and center images */
+    .product-media-container :is(img, .deferred-media__poster-image) {
+      object-fit: contain !important;
     }
   {% endif %}
 {% endstyle %}
