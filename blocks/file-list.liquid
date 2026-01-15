@@ -1,0 +1,334 @@
+{%- doc -%}
+  File List Block - Renders a list of files from a metafield with thumbnails, filename, dimensions and file size
+
+  @example
+  {% content_for 'block', type: 'file-list', id: 'downloads' %}
+{%- enddoc -%}
+
+{% liquid
+  assign block_settings = block.settings
+  assign files_reference = block_settings.files | strip
+
+  comment
+    Parse the reference into namespace and key
+    Support: custom.files or page.metafields.custom.files
+  endcomment
+
+  assign files = blank
+
+  if files_reference contains 'page.metafields.'
+    assign metafield_path = files_reference | remove: 'page.metafields.'
+    assign parts = metafield_path | split: '.'
+  elsif files_reference contains '.'
+    assign parts = files_reference | split: '.'
+  endif
+
+  comment
+    Access the metafield using .value to get actual file objects
+  endcomment
+  if parts.size == 2
+    assign namespace = parts[0]
+    assign key = parts[1]
+    assign files = page.metafields[namespace][key].value
+  endif
+%}
+
+{% if files != blank %}
+  <div
+    class="file-list"
+    {{ block.shopify_attributes }}
+    style="
+      {% render 'spacing-style', settings: block_settings %}
+      --file-list-gap: {{ block_settings.gap }}px;
+    "
+  >
+    <ul class="file-list__items">
+      {% for file in files %}
+        <li class="file-list__item">
+          {% comment %}
+            File metafield objects can have different structures:
+            - MediaImage: has .src, .preview_image.src
+            - GenericFile: has .url
+            Try different properties to find the download URL
+          {% endcomment %}
+          <a
+            href="{{ file | image_url }}"
+            class="file-list__link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div class="file-list__thumbnail">
+              {% if file.preview_image %}
+                {{
+                  file.preview_image
+                  | image_url: width: 240
+                  | image_tag: width: 240, height: 240, loading: 'lazy', alt: file.alt
+                }}
+              {% else %}
+                <div class="file-list__thumbnail-placeholder"></div>
+              {% endif %}
+            </div>
+
+            <div class="file-list__info">
+              <div class="file-list__meta">
+                {% liquid
+                  assign filename = file.alt
+                  if filename == blank
+                    if file.preview_image
+                      assign filename = file.preview_image.src | split: '/' | last | split: '?' | first
+                    elsif file.src
+                      assign filename = file.src | split: '/' | last | split: '?' | first
+                    elsif file.url
+                      assign filename = file.url | split: '/' | last | split: '?' | first
+                    else
+                      assign file_url = file | image_url
+                      assign filename = file_url | split: '/' | last | split: '?' | first
+                    endif
+                  endif
+                %}
+                <span class="file-list__name">
+                  {{ filename }}
+                </span>
+                {% if file.preview_image %}
+                  <span class="file-list__separator">—</span>
+                  <span class="file-list__dimensions">
+                    {{ file.preview_image.width }} × {{ file.preview_image.height }}
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+
+            <span class="file-list__icon">
+              <span class="svg-wrapper icon-arrow icon-arrow-down">
+                {{- 'icon-arrow.svg' | inline_asset_content -}}
+              </span>
+            </span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <div
+    class="file-list file-list--empty"
+    {{ block.shopify_attributes }}
+  >
+    <p class="file-list__empty-message">
+      {{ 'content.no_files_available' | t }}
+    </p>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .file-list {
+    width: 100%;
+  }
+
+  .file-list__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--file-list-gap);
+  }
+
+  .file-list__item {
+    display: block;
+  }
+
+  .file-list__link {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s ease;
+  }
+
+  .file-list__link:hover {
+    background-color: rgb(var(--color-foreground-rgb) / var(--opacity-10));
+  }
+
+  .file-list__thumbnail {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    background-color: rgb(var(--color-foreground-rgb) / var(--opacity-10));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-list__thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .file-list__thumbnail-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-60));
+  }
+
+  .file-list__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size--md);
+  }
+
+  .file-list__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2xs);
+    overflow: hidden;
+  }
+
+  .file-list__name {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .file-list__dimensions {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .file-list__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin: var(--margin-lg);
+  }
+
+  .file-list__icon .svg-wrapper {
+    display: flex;
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+  }
+
+  .file-list__icon .svg-wrapper > svg {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+  }
+
+  .file-list__icon .icon-arrow-down {
+    transform: rotate(90deg);
+  }
+
+  .file-list__empty-message {
+    text-align: center;
+    padding: var(--padding-xl);
+  }
+
+  @media screen and (min-width: 1200px) {
+    .file-list__items {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  document.querySelectorAll('.file-list__link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const url = link.href;
+      const filename = url.split('/').pop().split('?')[0];
+      fetch(url)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "File List",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "files",
+      "label": "Files metafield",
+      "info": "Enter your page metafield reference, e.g. custom.files",
+      "placeholder": "page.metafields.custom.files"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "File List",
+      "category": "t:categories.basic"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,552 @@
+{% comment %}
+  Map Section - displays a Google Map with multiple store locations
+{% endcomment %}
+
+{% capture children %}
+  <div class="map-container"
+    style="
+    {% if section.settings.section_height == 'custom' %}
+      height: {{ section.settings.section_height_custom }}svh;
+    {% elsif section.settings.section_height == 'full-screen' %}
+      height: 100svh;
+    {% elsif section.settings.section_height != '' %}
+      height: var(--section-height-{{ section.settings.section_height }});
+    {% endif %}
+  "
+>
+    <div class="map-sidebar" id="map-sidebar-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.address != blank -%}
+          <div class="map-location-item" data-store-id="{{ block.id }}">
+            {%- if block.settings.name != blank -%}
+              <h3>{{ block.settings.name }}</h3>
+            {%- endif -%}
+            {%- if block.settings.address != blank -%}
+              <p>{{ block.settings.address }}</p>
+            {%- endif -%}
+            {%- if block.settings.phone != blank -%}
+              <div class="map-location-phone">
+                <p>
+                  <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a>
+                </p>
+              </div>
+            {%- endif -%}
+            {%- if block.settings.domain != blank -%}
+              {%- liquid
+                assign clean_url = block.settings.domain | replace: 'https://', '' | replace: 'http://', ''
+                assign url_parts = clean_url | split: '/'
+                assign display_url = url_parts.first
+                
+                unless display_url contains 'www.'
+                  assign display_url = 'www.' | append: display_url
+                endunless
+              -%}
+              <div class="map-location-website">
+                <p>
+                  <a href="{{ block.settings.domain }}" target="_blank" rel="noopener">{{ display_url }}</a>
+                </p>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="map" id="map-{{ section.id }}">
+      <div class="map-placeholder">
+        <p>Loading map...</p>
+      </div>
+    </div>
+  </div>
+{% endcapture %}
+
+{% render 'section', section: section, children: children %}
+
+{% stylesheet %}
+  .map-container {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--gap-2xl);
+    width: 100%;
+    min-height: 120vh;
+  }
+
+  .map {
+    display: flex;
+    flex: 1;
+  }
+
+  .map-sidebar {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow-y: auto;
+    gap: var(--gap-2xl);
+    max-height: 50vh;
+  }
+
+  @media (min-width: 1200px) {
+    .map-container {
+      flex-direction: row;
+      overflow: hidden;
+      min-height: unset;
+    }
+
+    .map-sidebar {
+      max-height: unset;
+      max-width: 300px;
+    }
+  }
+
+  .map-location-item {
+    padding: var(--padding-lg);
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  .map-location-item p {
+    margin: 0;
+  }
+
+  .map-location-item:hover,
+  .map-location-item.active {
+    border-color: rgba(var(--color-foreground), 0.1);
+  }
+
+  .map-location-phone,
+  .map-location-website {
+    display: none;
+  }
+
+  .map-location-item.active .map-location-phone,
+  .map-location-item.active .map-location-website {
+    display: block;
+  }
+
+  .map-placeholder,
+  .map-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+{% endstylesheet %}
+
+<script>
+  (function() {
+    const sectionId = '{{ section.id }}';
+    const mapElement = document.getElementById('map-' + sectionId);
+
+    {%- if section.settings.google_maps_api_key == blank -%}
+      if (mapElement) {
+        mapElement.innerHTML = '<div class="map-error"><p>Google Maps API key is required</p></div>';
+      }
+      return;
+    {%- endif -%}
+
+    {%- if section.blocks.size == 0 -%}
+      if (mapElement) {
+        mapElement.innerHTML = '<div class="map-error"><p>No stores added</p></div>';
+      }
+      return;
+    {%- endif -%}
+
+    // Store locations data
+    const stores = [
+      {%- for block in section.blocks -%}
+        {%- if block.settings.address != blank -%}
+          {
+            id: '{{ block.id }}',
+            name: {{ block.settings.name | json }},
+            address: {{ block.settings.address | json }},
+            phone: {{ block.settings.phone | json }},
+            domain: {{ block.settings.domain | json }}
+          }{%- unless forloop.last -%},{%- endunless -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ];
+
+    if (stores.length === 0) {
+      if (mapElement) {
+        mapElement.innerHTML = '<div class="map-error"><p>No valid addresses</p></div>';
+      }
+      return;
+    }
+
+    // Parse map styles from settings
+    let mapStyles = [];
+    {%- if section.settings.map_styles != blank -%}
+      try {
+        mapStyles = JSON.parse({{ section.settings.map_styles | json }});
+      } catch (e) {
+        console.error('Invalid map styles JSON:', e);
+      }
+    {%- endif -%}
+
+    // Create unique callback name for this section
+    const callbackName = 'initMap_' + sectionId.replace(/-/g, '_');
+
+    // Initialize map function
+    window[callbackName] = function() {
+      console.log('Google Maps loaded for section:', sectionId);
+
+      const geocoder = new google.maps.Geocoder();
+      const bounds = new google.maps.LatLngBounds();
+      let geocodedCount = 0;
+      const markers = [];
+      const storeMarkers = {};
+
+      // Map options with custom styles - centered on Netherlands
+      const mapOptions = {
+        zoom: 9,
+        center: { lat: 52.1326, lng: 5.2913 }, // Center of Netherlands
+        mapTypeControl: true,
+        streetViewControl: false,
+        fullscreenControl: true,
+      };
+
+      // Add custom styles if provided
+      if (mapStyles.length > 0) {
+        mapOptions.styles = mapStyles;
+      }
+
+      // Create map
+      const map = new google.maps.Map(mapElement, mapOptions);
+
+      // Function to activate a sidebar item
+      function activateSidebarItem(sidebarItem) {
+        // Remove active class from all items
+        document.querySelectorAll('#map-sidebar-' + sectionId + ' .map-location-item').forEach(function(item) {
+          item.classList.remove('active');
+        });
+
+        // Add active class to this item
+        sidebarItem.classList.add('active');
+
+        // Scroll into view
+        sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Geocode each store and add markers
+      stores.forEach(function(store) {
+        geocoder.geocode({ address: store.address }, function(results, status) {
+          if (status === 'OK' && results[0]) {
+            const position = results[0].geometry.location;
+
+            // Create marker (don't add to map yet, clusterer will do it)
+            const marker = new google.maps.Marker({
+              position: position,
+              title: store.name
+            });
+
+            // Store the store ID on the marker for later reference
+            marker.storeId = store.id;
+
+            // Add click listener to marker
+            marker.addListener('click', function() {
+              const sidebarItem = document.querySelector('[data-store-id="' + this.storeId + '"]');
+              if (sidebarItem) {
+                activateSidebarItem(sidebarItem);
+              }
+            });
+
+            markers.push(marker);
+            storeMarkers[store.id] = marker;
+            bounds.extend(position);
+
+            geocodedCount++;
+
+            // After all markers are added, create clusterer and fit bounds
+            if (geocodedCount === stores.length) {
+              // Initialize MarkerClusterer
+              const markerCluster = new markerClusterer.MarkerClusterer({
+                map,
+                markers
+              });
+
+              // Fit bounds if we have markers
+              if (markers.length === 1) {
+                map.setCenter(markers[0].getPosition());
+                map.setZoom(12);
+              } else if (markers.length > 1) {
+                // Don't auto-fit bounds, keep Netherlands view
+                // map.fitBounds(bounds);
+              }
+
+              // Setup sidebar click handlers
+              const sidebarItems = document.querySelectorAll('#map-sidebar-' + sectionId + ' .map-location-item');
+              sidebarItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                  const storeId = this.getAttribute('data-store-id');
+                  const marker = storeMarkers[storeId];
+
+                  if (marker) {
+                    // Activate sidebar item with view transition
+                    activateSidebarItem(this);
+
+                    // Center map on marker
+                    map.setCenter(marker.getPosition());
+                    map.setZoom(12);
+                  }
+                });
+              });
+            }
+          } else {
+            geocodedCount++;
+            console.error('Geocode failed for address: ' + store.address + ', Status: ' + status);
+
+            // Check if all geocoding attempts are complete
+            if (geocodedCount === stores.length && markers.length === 0) {
+              mapElement.innerHTML = '<div class="map-error"><p>Unable to find locations</p></div>';
+            }
+          }
+        });
+      });
+    };
+
+    // Load MarkerClusterer library first, then Google Maps API
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+      console.log('Loading MarkerClusterer library...');
+
+      // Load MarkerClusterer from CDN
+      const clustererScript = document.createElement('script');
+      clustererScript.src = 'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js';
+      clustererScript.onload = function() {
+        console.log('MarkerClusterer loaded, now loading Google Maps API...');
+
+        // After MarkerClusterer is loaded, load Google Maps
+        const mapsScript = document.createElement('script');
+        mapsScript.src = 'https://maps.googleapis.com/maps/api/js?key={{ section.settings.google_maps_api_key | escape }}&callback=' + callbackName;
+        mapsScript.async = true;
+        mapsScript.defer = true;
+        mapsScript.onerror = function() {
+          console.error('Failed to load Google Maps API');
+          if (mapElement) {
+            mapElement.innerHTML = '<div class="map-error"><p>Failed to load Google Maps. Please check your API key.</p></div>';
+          }
+        };
+        document.head.appendChild(mapsScript);
+      };
+      clustererScript.onerror = function() {
+        console.error('Failed to load MarkerClusterer library');
+      };
+      document.head.appendChild(clustererScript);
+    } else {
+      console.log('Google Maps already loaded, initializing...');
+      window[callbackName]();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Map",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "google_maps_api_key",
+      "label": "Google Maps API Key",
+      "info": "Google Maps Javascript API key: https://console.cloud.google.com/"
+    },
+    {
+      "type": "header",
+      "content": "t:content.size"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "checkbox",
+      "id": "page_margin",
+      "label": "Page margin",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "section_height",
+      "label": "t:settings.height",
+      "options": [
+        {
+          "value": "",
+          "label": "t:options.auto"
+        },
+        {
+          "value": "small",
+          "label": "t:options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:options.large"
+        },
+        {
+          "value": "full-screen",
+          "label": "t:options.full_screen"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "range",
+      "id": "section_height_custom",
+      "label": "t:settings.custom_height",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 50,
+      "unit": "%",
+      "visible_if": "{{ section.settings.section_height == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "border",
+      "label": "t:settings.borders",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "solid",
+          "label": "t:options.solid"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 10,
+      "step": 0.5,
+      "unit": "px",
+      "label": "t:settings.border_width",
+      "default": 1,
+      "visible_if": "{{ section.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "t:settings.border_opacity",
+      "default": 100,
+      "visible_if": "{{ section.settings.border != 'none' }}"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:settings.border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "textarea",
+      "id": "map_styles",
+      "label": "Map Styles (JSON)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "store",
+      "name": "Store",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Name",
+          "default": "Store name"
+        },
+        {
+          "type": "textarea",
+          "id": "address",
+          "label": "Address",
+          "info": "Full address including postal code and city"
+        },
+        {
+          "type": "text",
+          "id": "phone",
+          "label": "Phone number",
+          "default": "000 0000000"
+        },
+        {
+          "type": "url",
+          "id": "domain",
+          "label": "Website URL",
+          "info": "Full URL including https://"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Map",
+      "blocks": [
+        {
+          "type": "store"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

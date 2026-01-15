@@ -1,0 +1,182 @@
+{%- doc -%}
+  Renders product badges for the product card.
+
+  @param {object} product - The product object.
+  @param {object} settings - The theme settings object.
+
+  @example
+  {% render 'product-card-badges', product: product, settings: settings %}
+{%- enddoc -%}
+
+<div
+  class="product-badges product-badges--{{ settings.badge_position }}"
+  style="
+    --badge-border-radius: {{ settings.badge_corner_radius }}px;
+    --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
+  "
+>
+  {%- if product.available == false or product.compare_at_price > product.price and product.available -%}
+    <div
+      class="
+        product-badges__badge
+        {% if product.available == false %} color-{{ settings.badge_sold_out_color_scheme }}{% elsif product.compare_at_price > product.price %} color-{{ settings.badge_sale_color_scheme }}{% endif %}
+      "
+    >
+      {%- if product.available == false -%}
+        {{ 'content.product_badge_sold_out' | t }}
+      {%- elsif product.compare_at_price > product.price -%}
+        {{ 'content.product_badge_sale' | t }}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  {%- comment -%} show per-customer discount badge when logged in {%- endcomment -%}
+  {%- if customer -%}
+    {% assign customer_discount = 0 %}
+    {% for tag in customer.tags %}
+      {% assign cand = 0 %}
+      {% assign candidate_type = '' %}
+      {% if tag == 'Dealer10' -%}
+        {%- assign cand = 10 -%}
+        {%- assign candidate_type = 'Dealer' -%}
+      {%- elsif tag == 'Distributeur10' -%}
+        {%- assign cand = 10 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {%- elsif tag == 'Distributeur15' -%}
+        {%- assign cand = 15 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% elsif tag == 'Dealer20' -%}
+        {%- assign cand = 20 -%}
+        {%- assign candidate_type = 'Dealer' -%}
+      {%- elsif tag == 'Distributeur20' -%}
+        {%- assign cand = 20 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% elsif tag == 'Dealer25' -%}
+        {%- assign cand = 25 -%}
+        {%- assign candidate_type = 'Dealer' -%}
+      {%- elsif tag == 'Distributeur25' -%}
+        {%- assign cand = 25 %}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {% elsif tag == 'Dealer30' -%}
+        {%- assign cand = 30 -%}
+        {%- assign candidate_type = 'Dealer' -%}
+      {%- elsif tag == 'Distributeur30' -%}
+        {%- assign cand = 30 -%}
+        {%- assign candidate_type = 'Distributeur' -%}
+      {%- endif %}
+      {% if cand > customer_discount %}
+        {% assign customer_discount = cand %}
+        {% assign customer_type = candidate_type %}
+      {% endif %}
+    {% endfor %}
+
+    {% if customer_discount > 0 and product.available %}
+      <div class="product-badges__badge color-{{ settings.badge_dealer_color_scheme }}">
+        {{ customer_type }} -{{ customer_discount }}%
+      </div>
+    {% endif %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .product-badges {
+    --badge-inset: max(var(--padding-xs), calc((var(--border-radius) + var(--padding-xs)) * (1 - cos(45deg))));
+
+    position: absolute;
+    z-index: var(--layer-flat);
+  }
+
+  .product-badges--bottom-left {
+    bottom: calc(var(--badge-inset) + var(--padding-block-start));
+    left: calc(var(--badge-inset) + var(--padding-inline-start));
+  }
+
+  .product-badges--top-left {
+    top: calc(var(--badge-inset) + var(--padding-block-start));
+    left: calc(var(--badge-inset) + var(--padding-inline-start));
+  }
+
+  .product-badges--top-right {
+    top: calc(var(--badge-inset) + var(--padding-block-start));
+    right: calc(var(--badge-inset) + var(--padding-inline-start));
+    text-align: center;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: var(--badge-rectangle-padding-inline);
+  }
+
+  .product-badges__badge {
+    --badge-font-size: var(--font-size--xs);
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: var(--badge-font-size);
+    font-family: var(--badge-font-family);
+    font-weight: var(--badge-font-weight);
+    text-transform: var(--badge-text-transform);
+    border-radius: var(--badge-border-radius);
+    /* keep badge text on a single line and prevent it from shrinking */
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Dealer discount badges need padding and styling like other badges */
+  .product-badges__badge:not(.product-price__badge) {
+    padding-block: var(--badge-rectangle-padding-block);
+    padding-inline: var(--badge-rectangle-padding-inline);
+  }
+
+  /* Specific smaller pill for badges shown in the price area */
+  .product-price__badge {
+    border-radius: var(--badge-border-radius);
+    padding: var(--badge-rectangle-padding-block) var(--badge-rectangle-padding-inline);
+    font-weight: 700;
+    font-size: calc(var(--font-size--xs) - 1px);
+    box-shadow: 0 1px 4px rgb(var(--color-shadow-rgb) / 0.06);
+    /* sit noticeably higher than the discounted price (creates visible gap) */
+    transform: translateY(-0.42em);
+    /* ensure it aligns inline with price text baseline */
+    vertical-align: baseline;
+  }
+
+  /* When the price container has a badge, give the following price some space */
+  .price--has-badge .price {
+    display: inline-block;
+    margin-top: 0.38rem;
+  }
+
+  /* Position the price-area badge on top of the price text (applies to all screen sizes) */
+  product-price {
+    position: relative;
+    display: inline-block;
+    vertical-align: baseline;
+    transform: translateY(-0.15em);
+  }
+
+  product-price .product-price__badge {
+    position: absolute;
+    top: -0.5em; /* slightly above the price line */
+    right: 0.25rem; /* align to the right of the price container */
+    transform: translateY(-50%);
+    z-index: 10;
+    margin: 0; /* remove any inline spacing that causes gaps */
+    pointer-events: none; /* keep clicks on the price unaffected */
+
+    /* allow the badge to expand instead of truncating */
+    max-width: none;
+    width: auto;
+    white-space: nowrap;
+    overflow: visible; /* allow overlap instead of clipping */
+
+    /* Make it a pill shape */
+    border-radius: 100px;
+  }
+
+  /* Ensure the price text doesn't reserve extra top margin in stacked layout */
+  product-price .price,
+  product-price .compare-at-price {
+    margin-top: 0;
+  }
+{% endstylesheet %}
