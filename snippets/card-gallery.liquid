@@ -13,6 +13,13 @@
   assign product = closest.product
   assign block_settings = block.settings
   assign image_sizes = '(min-width: 750px) 50vw, 100vw'
+  
+  # Detect if product is a visor (by title or metafield)
+  assign is_visor_product = false
+  assign product_title_lower = product.title | downcase
+  if product_title_lower contains 'visor' or product.metafields.custom.compatible_helmet != blank
+    assign is_visor_product = true
+  endif
 
   # if the card-gallery has a section.settings.product_card_size:
   # assume grid-template autofill(card-size, 1fr) and calculate the sizes attribute based on the minimum card size
@@ -108,16 +115,44 @@
   endfor
 %}
 
+{% comment %} Visor product card styling - smaller size with contained images {% endcomment %}
+{% if is_visor_product %}
+  <style>
+    .card-gallery--visor {
+      --gallery-aspect-ratio: 1 !important;
+    }
+    
+    .card-gallery--visor .product-media-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .card-gallery--visor .product-media {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .card-gallery--visor img {
+      object-fit: contain !important;
+      width: 100%;
+      height: 100%;
+      padding: 10%;
+    }
+  </style>
+{% endif %}
+
 <div
   ref="cardGallery"
-  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style card-gallery--scaled"
+  class="card-gallery card-gallery-{{ block.id }} spacing-style border-style card-gallery--scaled{% if is_visor_product %} card-gallery--visor{% endif %}"
   style="
     {% render 'border-override', settings: block_settings %}
     {% render 'spacing-style', settings: block_settings %}
-    --gallery-aspect-ratio: {{ ratio }};
+    --gallery-aspect-ratio: {% if is_visor_product %}1{% else %}{{ ratio }}{% endif %};
     --image-scale: {{ block_settings.image_scale | default: 100 | divided_by: 100.0 }};
   "
   data-product-id="{{ product.id }}"
+  {% if is_visor_product %}data-visor-product="true"{% endif %}
   {% if lifestyle_image != blank and block_settings.show_lifestyle_image %}
     data-lifestyle-image="true"
   {% endif %}
