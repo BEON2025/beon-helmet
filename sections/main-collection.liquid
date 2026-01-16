@@ -32,13 +32,28 @@
     -%}
 
     {% paginate collection.products by 24 %}
+      {%- liquid
+        # Check if the Visor product type filter is currently active
+        assign visor_filter_active = false
+        for filter in collection.filters
+          if filter.type == 'list' and filter.label == 'Product type'
+            for value in filter.active_values
+              assign value_downcase = value.label | downcase
+              if value_downcase == 'visor'
+                assign visor_filter_active = true
+                break
+              endif
+            endfor
+          endif
+        endfor
+      -%}
       {% capture children %}
         {% for product in collection.products %}
           {% assign product_title_downcase = product.title | downcase %}
           {% assign collection_handle_downcase = collection.handle | downcase %}
-          {% comment %} Skip visor products unless we're on the visors collection {% endcomment %}
+          {% comment %} Skip visor products unless we're on the visors collection or visor filter is active {% endcomment %}
           {% assign should_skip = false %}
-          {% if product_title_downcase contains 'visor' and collection_handle_downcase != 'visors' %}
+          {% if product_title_downcase contains 'visor' and collection_handle_downcase != 'visors' and visor_filter_active == false %}
             {% assign should_skip = true %}
           {% endif %}
           {% unless should_skip %}
