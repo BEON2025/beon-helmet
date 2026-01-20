@@ -15,7 +15,7 @@ import { DialogCloseEvent, DialogComponent } from '@theme/dialog';
 function cleanProductUrl(url) {
   try {
     const urlObj = new URL(url, window.location.origin);
-    // Remove Shopify's tracking parameters
+    // Remove Shopify's url tracking parameters
     urlObj.searchParams.delete('_pos');
     urlObj.searchParams.delete('_fid');
     urlObj.searchParams.delete('_ss');
