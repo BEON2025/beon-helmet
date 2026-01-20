@@ -21,6 +21,12 @@ function cleanProductUrl(url) {
     urlObj.searchParams.delete('_ss');
     urlObj.searchParams.delete('_psq');
     urlObj.searchParams.delete('_sid');
+    // Remove Shopify's product recommendation tracking parameters
+    urlObj.searchParams.delete('pr_prod_strat');
+    urlObj.searchParams.delete('pr_rec_id');
+    urlObj.searchParams.delete('pr_rec_pid');
+    urlObj.searchParams.delete('pr_ref_pid');
+    urlObj.searchParams.delete('pr_seq');
     return urlObj.toString();
   } catch {
     return url;
