@@ -6,40 +6,6 @@ import { RecentlyViewed } from '@theme/recently-viewed-products';
 import { DialogCloseEvent, DialogComponent } from '@theme/dialog';
 
 /**
- * Removes Shopify's collection/search tracking parameters from a URL.
- * These parameters (_pos, _fid, _ss, _psq) are added by Shopify when
- * products are accessed from search or filtered collection pages.
- * @param {string} url - The URL to clean
- * @returns {string} The cleaned URL without tracking parameters
- */
-function cleanProductUrl(url) {
-  try {
-    const urlObj = new URL(url, window.location.origin);
-    // Remove Shopify's tracking parameters
-    urlObj.searchParams.delete('_pos');
-    urlObj.searchParams.delete('_fid');
-    urlObj.searchParams.delete('_ss');
-    urlObj.searchParams.delete('_psq');
-    return urlObj.toString();
-  } catch {
-    return url;
-  }
-}
-
-/**
- * Cleans tracking parameters from all product links within a container element.
- * @param {HTMLElement} container - The container to search for product links
- */
-function cleanProductLinksInContainer(container) {
-  const productLinks = container.querySelectorAll('a[href*="/products/"]');
-  productLinks.forEach((link) => {
-    if (link instanceof HTMLAnchorElement) {
-      link.href = cleanProductUrl(link.href);
-    }
-  });
-}
-
-/**
  * A custom element that allows the user to search for resources available on the store.
  *
  * @typedef {object} Refs
@@ -351,9 +317,6 @@ class PredictiveSearchComponent extends Component {
 
         morph(predictiveSearchResults, resultsMarkup);
 
-        // Clean tracking parameters from product URLs in search results
-        cleanProductLinksInContainer(predictiveSearchResults);
-
         this.#resetScrollPositions();
       })
       .catch((error) => {
@@ -445,9 +408,6 @@ class PredictiveSearchComponent extends Component {
     if (abortController.signal.aborted) return;
 
     morph(predictiveSearchResults, parsedEmptySectionMarkup);
-    
-    // Clean tracking parameters from product URLs in recently viewed products
-    cleanProductLinksInContainer(predictiveSearchResults);
     
     this.#resetScrollPositions();
   };
