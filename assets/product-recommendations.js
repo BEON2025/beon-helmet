@@ -1,42 +1,3 @@
-/**
- * Removes Shopify's tracking parameters from a URL.
- * @param {string} url - The URL to clean
- * @returns {string} The cleaned URL without tracking parameters
- */
-function cleanProductUrl(url) {
-  try {
-    const urlObj = new URL(url, window.location.origin);
-    // Remove Shopify's collection tracking parameters
-    urlObj.searchParams.delete('_pos');
-    urlObj.searchParams.delete('_fid');
-    urlObj.searchParams.delete('_ss');
-    urlObj.searchParams.delete('_psq');
-    urlObj.searchParams.delete('_sid');
-    // Remove Shopify's product recommendation tracking parameters
-    urlObj.searchParams.delete('pr_prod_strat');
-    urlObj.searchParams.delete('pr_rec_id');
-    urlObj.searchParams.delete('pr_rec_pid');
-    urlObj.searchParams.delete('pr_ref_pid');
-    urlObj.searchParams.delete('pr_seq');
-    return urlObj.toString();
-  } catch {
-    return url;
-  }
-}
-
-/**
- * Cleans tracking parameters from all product links within a container element.
- * @param {HTMLElement} container - The container to search for product links
- */
-function cleanProductLinksInContainer(container) {
-  const productLinks = container.querySelectorAll('a[href*="/products/"]');
-  productLinks.forEach((link) => {
-    if (link instanceof HTMLAnchorElement) {
-      link.href = cleanProductUrl(link.href);
-    }
-  });
-}
-
 class ProductRecommendations extends HTMLElement {
   /**
    * The observer for the product recommendations
@@ -132,8 +93,6 @@ class ProductRecommendations extends HTMLElement {
         if (recommendations?.innerHTML && recommendations.innerHTML.trim().length) {
           this.dataset.recommendationsPerformed = 'true';
           this.innerHTML = recommendations.innerHTML;
-          // Clean tracking parameters from product URLs in recommendations
-          cleanProductLinksInContainer(this);
         } else {
           this.#handleError(new Error('No recommendations available'));
         }

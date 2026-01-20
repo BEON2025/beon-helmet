@@ -6,34 +6,6 @@ import { ThemeEvents, VariantSelectedEvent, VariantUpdateEvent, SlideshowSelectE
 import { morph } from '@theme/morph';
 
 /**
- * Removes Shopify's collection tracking parameters from a URL.
- * These parameters (_pos, _fid, _ss, _psq) are added by Shopify when
- * products are accessed from filtered collection pages.
- * @param {string} url - The URL to clean
- * @returns {string} The cleaned URL without tracking parameters
- */
-function cleanProductUrl(url) {
-  try {
-    const urlObj = new URL(url, window.location.origin);
-    // Remove Shopify's collection tracking parameters
-    urlObj.searchParams.delete('_pos');
-    urlObj.searchParams.delete('_fid');
-    urlObj.searchParams.delete('_ss');
-    urlObj.searchParams.delete('_psq');
-    urlObj.searchParams.delete('_sid');
-    // Remove Shopify's product recommendation tracking parameters
-    urlObj.searchParams.delete('pr_prod_strat');
-    urlObj.searchParams.delete('pr_rec_id');
-    urlObj.searchParams.delete('pr_rec_pid');
-    urlObj.searchParams.delete('pr_ref_pid');
-    urlObj.searchParams.delete('pr_seq');
-    return urlObj.toString();
-  } catch {
-    return url;
-  }
-}
-
-/**
  * A custom element that displays a product card.
  *
  * @typedef {object} Refs
@@ -100,9 +72,6 @@ export class ProductCard extends Component {
     const link = this.refs.productCardLink;
     if (!(link instanceof HTMLAnchorElement)) throw new Error('Product card link not found');
     
-    // Clean tracking parameters from product URLs on initial load
-    this.#cleanProductLinks();
-    
     this.#handleQuickAdd();
 
     this.addEventListener(ThemeEvents.variantUpdate, this.#handleVariantUpdate);
@@ -118,24 +87,6 @@ export class ProductCard extends Component {
         this.#preloadNextPreviewImage();
       }
     });
-  }
-
-  /**
-   * Cleans Shopify's collection tracking parameters from all product links in the card.
-   * This ensures clean URLs are displayed to users and in the browser address bar.
-   */
-  #cleanProductLinks() {
-    const { productCardLink, productTitleLink, cardGalleryLink } = this.refs;
-    
-    if (productCardLink instanceof HTMLAnchorElement && productCardLink.href) {
-      productCardLink.href = cleanProductUrl(productCardLink.href);
-    }
-    if (productTitleLink instanceof HTMLAnchorElement && productTitleLink.href) {
-      productTitleLink.href = cleanProductUrl(productTitleLink.href);
-    }
-    if (cardGalleryLink instanceof HTMLAnchorElement && cardGalleryLink.href) {
-      cardGalleryLink.href = cleanProductUrl(cardGalleryLink.href);
-    }
   }
 
   disconnectedCallback() {
@@ -254,16 +205,14 @@ export class ProductCard extends Component {
       // If the href is empty, don't update the product URL eg: unavailable variant
       if (anchorElement.getAttribute('href')?.trim() === '') return;
 
-      // Clean the URL to remove Shopify's collection tracking parameters
-      const productUrl = cleanProductUrl(anchorElement.href);
       const { productCardLink, productTitleLink, cardGalleryLink } = this.refs;
 
-      productCardLink.href = productUrl;
+      productCardLink.href = anchorElement.href;
       if (cardGalleryLink instanceof HTMLAnchorElement) {
-        cardGalleryLink.href = productUrl;
+        cardGalleryLink.href = anchorElement.href;
       }
       if (productTitleLink instanceof HTMLAnchorElement) {
-        productTitleLink.href = productUrl;
+        productTitleLink.href = anchorElement.href;
       }
     }
   }
