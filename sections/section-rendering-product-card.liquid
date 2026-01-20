@@ -10,13 +10,7 @@
     endif
   endif
 
-  assign url = product.selected_or_first_available_variant.url
-  unless url
-    assign url = product.first_available_variant.url
-  endunless
-  unless url
-    assign url = product.url
-  endunless
+  assign url = product.url
 %}
 
 {%- if settings.transition_to_main_product -%}

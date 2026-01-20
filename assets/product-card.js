@@ -410,13 +410,15 @@ export class ProductCard extends Component {
 
     const url = new URL(window.location.href);
     const parent = this.closest('li');
-    url.hash = productCardAnchor;
+    // Don't add hash to URL - keep URL clean
     if (parent && parent.dataset.page) {
       url.searchParams.set('page', parent.dataset.page);
     }
 
     if (!window.Shopify.designMode) {
       requestYieldCallback(() => {
+        // Remove any existing hash from URL
+        url.hash = '';
         history.replaceState({}, '', url.toString());
       });
     }
