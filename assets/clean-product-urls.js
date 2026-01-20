@@ -20,6 +20,8 @@ const TRACKING_PARAMS = [
   'pr_rec_pid',
   'pr_ref_pid',
   'pr_seq',
+  // Variant parameter (keep URLs clean, variant selection is handled by JavaScript)
+  'variant',
 ];
 
 /**
@@ -148,6 +150,15 @@ export function initCleanProductUrls() {
   
   // Clean URLs after page transitions (for SPA-like navigation)
   window.addEventListener('popstate', cleanCurrentPageUrl);
+  
+  // Handle back-forward cache (bfcache) - clean URLs when page is restored from cache
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      // Page was restored from bfcache
+      cleanCurrentPageUrl();
+      cleanProductLinksInContainer(document);
+    }
+  });
 }
 
 // Auto-initialize when DOM is ready
