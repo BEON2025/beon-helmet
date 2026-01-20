@@ -20,6 +20,7 @@ function cleanProductUrl(url) {
     urlObj.searchParams.delete('_fid');
     urlObj.searchParams.delete('_ss');
     urlObj.searchParams.delete('_psq');
+    urlObj.searchParams.delete('_sid');
     return urlObj.toString();
   } catch {
     return url;
