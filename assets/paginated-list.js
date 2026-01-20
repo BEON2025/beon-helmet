@@ -5,6 +5,42 @@ import { ThemeEvents } from '@theme/events';
 import { PaginatedListAspectRatioHelper } from '@theme/paginated-list-aspect-ratio';
 
 /**
+ * Removes Shopify's collection/search tracking parameters from a URL.
+ * @param {string} url - The URL to clean
+ * @returns {string} The cleaned URL without tracking parameters
+ */
+function cleanProductUrl(url) {
+  try {
+    const urlObj = new URL(url, window.location.origin);
+    urlObj.searchParams.delete('_pos');
+    urlObj.searchParams.delete('_fid');
+    urlObj.searchParams.delete('_ss');
+    urlObj.searchParams.delete('_psq');
+    urlObj.searchParams.delete('_sid');
+    return urlObj.toString();
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * Cleans tracking parameters from all product links within a container element.
+ * @param {NodeListOf<Element>} elements - The elements to search for product links
+ */
+function cleanProductLinksInElements(elements) {
+  elements.forEach((element) => {
+    if (element instanceof Element) {
+      const productLinks = element.querySelectorAll('a[href*="/products/"]');
+      productLinks.forEach((/** @type {HTMLAnchorElement} */ link) => {
+        if (link instanceof HTMLAnchorElement) {
+          link.href = cleanProductUrl(link.href);
+        }
+      });
+    }
+  });
+}
+
+/**
  * A custom element that renders a paginated list of items.
  *
  * @typedef {object} Refs
@@ -189,6 +225,9 @@ export default class PaginatedList extends Component {
 
     grid.append(...nextPageItemElements);
 
+    // Clean tracking parameters from product URLs in newly added elements
+    cleanProductLinksInElements(nextPageItemElements);
+
     this.#aspectRatioHelper.processNewElements();
 
     history.pushState('', '', nextPage.url.toString());
@@ -227,6 +266,9 @@ export default class PaginatedList extends Component {
 
     // Prepend the new elements
     grid.prepend(...previousPageItemElements);
+
+    // Clean tracking parameters from product URLs in newly added elements
+    cleanProductLinksInElements(previousPageItemElements);
 
     this.#aspectRatioHelper.processNewElements();
 
