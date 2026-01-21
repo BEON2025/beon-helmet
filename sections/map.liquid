@@ -1,7 +1,36 @@
 {% comment %}
   Map Section - displays a Google Map with multiple store locations
 {% endcomment %}
+{%- if customer and section.settings.admin_emails != blank -%}
+  {%- liquid
+    assign admin_emails_raw = section.settings.admin_emails | downcase | strip
+    assign admin_emails = admin_emails_raw | split: ','
+    assign current_email = customer.email | downcase | strip
+    assign is_admin = false
 
+    for admin_email in admin_emails
+      assign trimmed_email = admin_email | strip
+      if current_email == trimmed_email
+        assign is_admin = true
+        break
+      endif
+    endfor
+  -%}
+{%- endif -%}
+{%- if is_admin -%}
+  <div
+    class="map-admin-access"
+    style="margin-bottom: 0.5rem; padding: var(--page-margin); border-bottom: 2px solid rgba(var(--color-foreground), 0.1);"
+  >
+    <a
+      href="/pages/{{ section.settings.dealer_manager_page | default: 'dealer-manager' }}"
+      class="button button--primary"
+      style="width: 200px; text-align: center; display: block; padding: 1rem; text-decoration: none; font-weight: 600;"
+    >
+      Manage Dealers
+    </a>
+  </div>
+{%- endif -%}
 {% capture children %}
   <div class="map-container"
     style="
@@ -15,6 +44,10 @@
   "
 >
     <div class="map-sidebar" id="map-sidebar-{{ section.id }}">
+      
+      {%- comment -%}Admin button at TOP of sidebar{%- endcomment -%}
+      
+      
       {%- for block in section.blocks -%}
         {%- if block.settings.address != blank -%}
           <div class="map-location-item" data-store-id="{{ block.id }}">
@@ -348,6 +381,20 @@
       "id": "google_maps_api_key",
       "label": "Google Maps API Key",
       "info": "Google Maps Javascript API key: https://console.cloud.google.com/"
+    },
+    {
+      "type": "text",
+      "id": "dealer_manager_page",
+      "label": "Dealer Manager Page Handle",
+      "default": "dealer-management",
+      "info": "The page handle for dealer management (default: dealer-manager)"
+    },
+    {
+      "type": "textarea",
+      "id": "admin_emails",
+      "label": "Admin Emails (comma-separated)",
+      "placeholder": "admin@example.com, manager@example.com",
+      "info": "Logged-in users with these emails will see the 'Manage Dealers' button"
     },
     {
       "type": "header",
