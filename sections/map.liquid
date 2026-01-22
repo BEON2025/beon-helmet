@@ -18,19 +18,270 @@
   -%}
 {%- endif -%}
 {%- if is_admin -%}
+  <script src="{{ 'dealer-manager-inline.js' | asset_url }}" defer></script>
+  <link rel="stylesheet" href="{{ 'dealer-manager-inline.css' | asset_url }}">
+
+  {%- comment -%} Load existing dealers from page metafields {%- endcomment -%}
+  {%- liquid
+    assign existing_dealers = '[]'
+    if pages['dealer-locator'].metafields.custom.dealers.value
+      assign existing_dealers = pages['dealer-locator'].metafields.custom.dealers.value
+    endif
+  -%}
+  <script>
+    window.initialDealersInline = {{ existing_dealers }};
+  </script>
+
   <div
     class="map-admin-access"
     style="margin-bottom: 0.5rem; padding: var(--page-margin); border-bottom: 2px solid rgba(var(--color-foreground), 0.1);"
   >
-    <a
-      href="/pages/{{ section.settings.dealer_manager_page | default: 'dealer-manager' }}"
+    <button
+      id="dealer-manager-toggle"
       class="button button--primary"
-      style="width: 200px; text-align: center; display: block; padding: 1rem; text-decoration: none; font-weight: 600;"
     >
       Manage Dealers
-    </a>
+    </button>
+  </div>
+
+  {%- comment -%} Inline Dealer Manager Panel - Hidden by Default {%- endcomment -%}
+  <div id="dealer-manager-inline" style="display: none;">
+    <div class="dealer-manager-inline-container">
+      {%- comment -%} Status Messages {%- endcomment -%}
+      <div id="dealer-manager-status-inline" class="dealer-manager-status" style="display: none;">
+        <span class="status-icon"></span>
+        <span class="status-message"></span>
+      </div>
+
+      {%- comment -%} Action Buttons {%- endcomment -%}
+      <div class="dealer-manager-actions">
+        <div class="action-group">
+          <button class="btn btn-primary" id="add-dealer-btn-inline">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Add Dealer
+          </button>
+          <button class="btn btn-secondary" id="download-template-btn-inline">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2v8m0 0l3-3m-3 3L5 7m9 6H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download Template
+          </button>
+          <button class="btn btn-secondary" id="export-dealers-btn-inline">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 10v4h12v-4M8 2v8m0 0l3-3m-3 3L5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Export All
+          </button>
+        </div>
+        <div class="action-group">
+          <button class="btn btn-success" id="save-dealers-btn-inline" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M13 2L6 9l-3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Get JSON to Save
+          </button>
+        </div>
+      </div>
+
+      {%- comment -%} Bulk Upload Section {%- endcomment -%}
+      <div class="dealer-manager-upload">
+        <div class="upload-card">
+          <h3>Bulk Upload</h3>
+          <p>Upload an Excel file (.xlsx) to add or replace dealers</p>
+
+          <div class="upload-area">
+            <input type="file" id="excel-upload-inline" accept=".xlsx" style="display: none;">
+            <label for="excel-upload-inline" class="upload-label">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor">
+                <path d="M24 8v24m0 0l-8-8m8 8l8-8M8 32v8h32v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Click to upload or drag and drop</span>
+              <span class="upload-hint">Excel file (.xlsx) only</span>
+            </label>
+          </div>
+
+          <div class="upload-options">
+            <label class="radio-option">
+              <input type="radio" name="upload-mode-inline" value="add" checked>
+              <span>Add to existing dealers</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="upload-mode-inline" value="replace">
+              <span>Replace all dealers</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Search and Filter {%- endcomment -%}
+      <div class="dealer-manager-search">
+        <input
+          type="text"
+          id="dealer-search-inline"
+          placeholder="Search dealers by name, address, or phone..."
+          class="search-input"
+        >
+        <span class="search-count"
+          >Showing <strong id="visible-count-inline">0</strong> of <strong id="total-count-inline">0</strong> dealers</span
+        >
+      </div>
+
+      {%- comment -%} Dealers Table {%- endcomment -%}
+      <div class="dealer-manager-table">
+        <div class="table-wrapper">
+          <table id="dealers-table-inline">
+            <thead>
+              <tr>
+                <th class="sortable" data-column="name">
+                  Name
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="address">
+                  Address
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="phone">
+                  Phone
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="email">
+                  Email
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="website">
+                  Website
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dealers-tbody-inline">
+              <tr class="empty-state">
+                <td colspan="6">
+                  <div class="empty-state-content">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+                      <circle cx="32" cy="32" r="28" stroke-width="2"/>
+                      <path d="M32 20v16m0 4h.01" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h3>No dealers yet</h3>
+                    <p>Add dealers manually or upload an Excel file to get started</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} Add/Edit Dealer Modal {%- endcomment -%}
+    <div id="dealer-modal-inline" class="dealer-modal" style="display: none;">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modal-title-inline">Add Dealer</h2>
+          <button class="modal-close" id="modal-close-btn-inline">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="dealer-form-inline">
+            <input type="hidden" id="dealer-id-inline" name="id">
+
+            <div class="form-group">
+              <label for="dealer-name-inline">Company Name *</label>
+              <input type="text" id="dealer-name-inline" name="name" required placeholder="Store name">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dealer-street-inline">Street *</label>
+                <input type="text" id="dealer-street-inline" name="street" required placeholder="Main Street">
+              </div>
+
+              <div class="form-group" style="flex: 0 0 150px;">
+                <label for="dealer-house-number-inline">House Number *</label>
+                <input type="text" id="dealer-house-number-inline" name="houseNumber" required placeholder="123">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dealer-postal-code-inline">Postal Code *</label>
+                <input type="text" id="dealer-postal-code-inline" name="postalCode" required placeholder="1234 AB">
+              </div>
+
+              <div class="form-group">
+                <label for="dealer-city-inline">City *</label>
+                <input type="text" id="dealer-city-inline" name="city" required placeholder="Amsterdam">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="dealer-country-inline">Country *</label>
+              <input
+                type="text"
+                id="dealer-country-inline"
+                name="country"
+                required
+                placeholder="Netherlands"
+                value="Netherlands"
+              >
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dealer-email-inline">Email</label>
+                <input type="email" id="dealer-email-inline" name="email" placeholder="info@example.com">
+              </div>
+
+              <div class="form-group">
+                <label for="dealer-phone-inline">Phone *</label>
+                <input type="text" id="dealer-phone-inline" name="phone" required placeholder="020 1234567">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="dealer-website-inline">Website</label>
+              <input type="url" id="dealer-website-inline" name="website" placeholder="https://www.example.com">
+            </div>
+
+            <div class="modal-actions">
+              <button type="submit" class="btn btn-primary">Save Dealer</button>
+              <button type="button" class="btn btn-secondary" id="modal-cancel-btn-inline">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} JSON Output Modal {%- endcomment -%}
+    <div id="json-modal-inline" class="json-modal" style="display: none;">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Copy JSON to Metafields</h2>
+          <button class="modal-close" id="json-modal-close-inline">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="json-instructions">
+            <h4>📋 How to save dealers:</h4>
+            <ol>
+              <li>Click "Copy to Clipboard" below</li>
+              <li>Go to Shopify Admin → Pages → dealer-locator</li>
+              <li>Scroll down to "Metafields" section</li>
+              <li>Find "dealers" field and paste the JSON</li>
+              <li>Click Save</li>
+            </ol>
+          </div>
+          <textarea id="json-output-inline" class="json-output" readonly></textarea>
+          <button id="copy-json-btn-inline" class="copy-btn">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
   </div>
 {%- endif -%}
+
 {% capture children %}
   <div class="map-container"
     style="
@@ -43,30 +294,36 @@
     {% endif %}
   "
 >
+    {%- comment -%} Load dealers from metafield {%- endcomment -%}
+    {%- assign metafield_dealers_raw = pages['dealer-locator'].metafields.custom.dealers.value -%}
+    {%- assign metafield_dealers = metafield_dealers_raw | default: '' -%}
+    
     <div class="map-sidebar" id="map-sidebar-{{ section.id }}">
-      
-      {%- comment -%}Admin button at TOP of sidebar{%- endcomment -%}
-      
-      
-      {%- for block in section.blocks -%}
-        {%- if block.settings.address != blank -%}
-          <div class="map-location-item" data-store-id="{{ block.id }}">
-            {%- if block.settings.name != blank -%}
-              <h3>{{ block.settings.name }}</h3>
+      {%- if metafield_dealers != blank and metafield_dealers != '' -%}
+        {%- for dealer in metafield_dealers -%}
+          {%- comment -%} Build address string from separate fields {%- endcomment -%}
+          {%- capture dealer_address -%}
+            {{ dealer.street }} {{ dealer.houseNumber }}, {{ dealer.postalCode }} {{ dealer.city }}, {{ dealer.country }}
+          {%- endcapture -%}
+          {%- assign dealer_address = dealer_address | strip -%}
+          
+          <div class="map-location-item" data-store-id="{{ dealer.id }}">
+            {%- if dealer.name != blank -%}
+              <h3>{{ dealer.name }}</h3>
             {%- endif -%}
-            {%- if block.settings.address != blank -%}
-              <p>{{ block.settings.address }}</p>
+            {%- if dealer_address != blank -%}
+              <p>{{ dealer_address }}</p>
             {%- endif -%}
-            {%- if block.settings.phone != blank -%}
+            {%- if dealer.phone != blank -%}
               <div class="map-location-phone">
                 <p>
-                  <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a>
+                  <a href="tel:{{ dealer.phone }}">{{ dealer.phone }}</a>
                 </p>
               </div>
             {%- endif -%}
-            {%- if block.settings.domain != blank -%}
+            {%- if dealer.website != blank -%}
               {%- liquid
-                assign clean_url = block.settings.domain | replace: 'https://', '' | replace: 'http://', ''
+                assign clean_url = dealer.website | replace: 'https://', '' | replace: 'http://', ''
                 assign url_parts = clean_url | split: '/'
                 assign display_url = url_parts.first
                 
@@ -76,13 +333,50 @@
               -%}
               <div class="map-location-website">
                 <p>
-                  <a href="{{ block.settings.domain }}" target="_blank" rel="noopener">{{ display_url }}</a>
+                  <a href="{{ dealer.website }}" target="_blank" rel="noopener">{{ display_url }}</a>
                 </p>
               </div>
             {%- endif -%}
           </div>
-        {%- endif -%}
-      {%- endfor -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%} Fallback to block-based system if no metafield data {%- endcomment -%}
+        {%- for block in section.blocks -%}
+          {%- if block.settings.address != blank -%}
+            <div class="map-location-item" data-store-id="{{ block.id }}">
+              {%- if block.settings.name != blank -%}
+                <h3>{{ block.settings.name }}</h3>
+              {%- endif -%}
+              {%- if block.settings.address != blank -%}
+                <p>{{ block.settings.address }}</p>
+              {%- endif -%}
+              {%- if block.settings.phone != blank -%}
+                <div class="map-location-phone">
+                  <p>
+                    <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a>
+                  </p>
+                </div>
+              {%- endif -%}
+              {%- if block.settings.domain != blank -%}
+                {%- liquid
+                  assign clean_url = block.settings.domain | replace: 'https://', '' | replace: 'http://', ''
+                  assign url_parts = clean_url | split: '/'
+                  assign display_url = url_parts.first
+                  
+                  unless display_url contains 'www.'
+                    assign display_url = 'www.' | append: display_url
+                  endunless
+                -%}
+                <div class="map-location-website">
+                  <p>
+                    <a href="{{ block.settings.domain }}" target="_blank" rel="noopener">{{ display_url }}</a>
+                  </p>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
     </div>
 
     <div class="map" id="map-{{ section.id }}">
@@ -176,26 +470,50 @@
       return;
     {%- endif -%}
 
-    {%- if section.blocks.size == 0 -%}
-      if (mapElement) {
-        mapElement.innerHTML = '<div class="map-error"><p>No stores added</p></div>';
-      }
-      return;
+    {%- comment -%} Check if metafield dealers exist, otherwise fall back to blocks {%- endcomment -%}
+    {%- assign metafield_dealers_js = pages['dealer-locator'].metafields.custom.dealers.value -%}
+    {%- assign has_metafield_dealers = false -%}
+    {%- if metafield_dealers_js != blank and metafield_dealers_js.size > 0 -%}
+      {%- assign has_metafield_dealers = true -%}
     {%- endif -%}
+    
+    {%- unless has_metafield_dealers -%}
+      {%- if section.blocks.size == 0 -%}
+        if (mapElement) {
+          mapElement.innerHTML = '<div class="map-error"><p>No stores added</p></div>';
+        }
+        return;
+      {%- endif -%}
+    {%- endunless -%}
 
     // Store locations data
     const stores = [
-      {%- for block in section.blocks -%}
-        {%- if block.settings.address != blank -%}
+      {%- if has_metafield_dealers -%}
+        {%- for dealer in metafield_dealers_js -%}
+          {%- capture dealer_address_js -%}
+            {{ dealer.street }} {{ dealer.houseNumber }}, {{ dealer.postalCode }} {{ dealer.city }}, {{ dealer.country }}
+          {%- endcapture -%}
           {
-            id: '{{ block.id }}',
-            name: {{ block.settings.name | json }},
-            address: {{ block.settings.address | json }},
-            phone: {{ block.settings.phone | json }},
-            domain: {{ block.settings.domain | json }}
+            id: {{ dealer.id | json }},
+            name: {{ dealer.name | json }},
+            address: {{ dealer_address_js | strip | json }},
+            phone: {{ dealer.phone | json }},
+            domain: {{ dealer.website | json }}
           }{%- unless forloop.last -%},{%- endunless -%}
-        {%- endif -%}
-      {%- endfor -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          {%- if block.settings.address != blank -%}
+            {
+              id: '{{ block.id }}',
+              name: {{ block.settings.name | json }},
+              address: {{ block.settings.address | json }},
+              phone: {{ block.settings.phone | json }},
+              domain: {{ block.settings.domain | json }}
+            }{%- unless forloop.last -%},{%- endunless -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
     ];
 
     if (stores.length === 0) {
@@ -385,9 +703,9 @@
     {
       "type": "text",
       "id": "dealer_manager_page",
-      "label": "Dealer Manager Page Handle",
-      "default": "dealer-management",
-      "info": "The page handle for dealer management (default: dealer-manager)"
+      "label": "Dealer Data Page Handle",
+      "default": "dealer-locator",
+      "info": "The page handle where dealer data is stored in metafields (default: dealer-locator)"
     },
     {
       "type": "textarea",
