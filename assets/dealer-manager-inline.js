@@ -1,12 +1,14 @@
 /**
- * Dealer Manager Inline - Temporary Version
+ * Dealer Manager Inline - API Version
  * Manages dealer locations with CRUD operations and bulk Excel upload
- * Shows JSON output for manual copy/paste to metafields
- * This is a temporary solution until API access is granted
+ * Now connects to external Vercel API for data persistence
  */
 
 (function() {
   'use strict';
+
+  // Get API URL from window (set by Liquid template)
+  const API_URL = window.DEALER_API_URL || 'https://dealer-manager-three.vercel.app/api/dealers';
 
   // Dutch column names for template/export
   const DUTCH_COLUMNS = ['Bedrijfsnaam', 'Straatnaam', 'Huisnummer', 'Postcode', 'Plaatsnaam', 'Land', 'E-mail', 'Telefoonnummer', 'Website'];
@@ -29,7 +31,7 @@
     if (!document.getElementById('dealer-manager-inline')) return;
 
     cacheElements();
-    loadDealersFromWindow();
+    loadDealersFromAPI();
     setupEventListeners();
     loadSheetJS();
     setupToggle();
@@ -83,7 +85,7 @@
    */
   function setupEventListeners() {
     elements.addBtn?.addEventListener('click', () => openModal());
-    elements.saveBtn?.addEventListener('click', showJsonModal);
+    elements.saveBtn?.addEventListener('click', saveDealerToAPI);
     elements.exportBtn?.addEventListener('click', exportDealers);
     elements.templateBtn?.addEventListener('click', downloadTemplate);
     elements.excelUpload?.addEventListener('change', handleExcelUpload);
@@ -130,31 +132,64 @@
   }
 
   /**
-   * Load dealers from window.initialDealers
+   * Load dealers from API
    */
-  function loadDealersFromWindow() {
-    showStatus('Loading dealers...', 'loading');
+  async function loadDealersFromAPI() {
+    showStatus('Loading dealers from API...', 'loading');
 
     try {
-      if (window.initialDealersInline && Array.isArray(window.initialDealersInline)) {
-        dealers = window.initialDealersInline;
-      } else {
-        dealers = [];
-      }
+      const response = await fetch(API_URL + '?all=true');
+      if (!response.ok) throw new Error('Failed to fetch dealers');
+      
+      const data = await response.json();
+      dealers = data.dealers || [];
 
       renderTable();
-      showStatus(`Loaded ${dealers.length} dealers`, 'success');
+      showStatus(`Loaded ${dealers.length} dealers from API`, 'success');
       setTimeout(() => hideStatus(), 2000);
     } catch (error) {
       console.error('Error loading dealers:', error);
-      showStatus(error.message, 'error');
+      showStatus('Failed to load dealers: ' + error.message, 'error');
       dealers = [];
       renderTable();
     }
   }
 
   /**
-   * Show JSON modal for copying
+   * Save dealer to API (create or update)
+   */
+  async function saveDealerToAPI() {
+    if (!hasUnsavedChanges) {
+      showStatus('No changes to save', 'info');
+      setTimeout(() => hideStatus(), 2000);
+      return;
+    }
+
+    showStatus('Saving to API...', 'loading');
+
+    try {
+      // For now, do a full replace (bulk update)
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dealers, mode: 'replace' })
+      });
+
+      if (!response.ok) throw new Error('Failed to save dealers');
+
+      const data = await response.json();
+      hasUnsavedChanges = false;
+      updateSaveButtonState();
+      showStatus('Saved successfully! Refresh the page to see changes on the map.', 'success');
+      setTimeout(() => hideStatus(), 3000);
+    } catch (error) {
+      console.error('Error saving dealers:', error);
+      showStatus('Failed to save: ' + error.message, 'error');
+    }
+  }
+
+  /**
+   * Show JSON modal for copying (legacy - kept for debugging)
    */
   function showJsonModal() {
     const jsonStr = JSON.stringify(dealers, null, 2);
