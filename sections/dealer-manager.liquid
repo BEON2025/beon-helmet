@@ -1,0 +1,341 @@
+{% comment %}
+  Dealer Manager Section - Dutch Template Version
+  Allows admin to manage dealer locations via CRUD table and bulk Excel upload
+  Excel template uses Dutch column names, UI remains in English
+{% endcomment %}
+
+{%- comment -%}Check if user is authorized to access this page{%- endcomment -%}
+{%- liquid
+  assign is_authorized = false
+
+  if customer and section.settings.admin_emails != blank
+    assign admin_emails_raw = section.settings.admin_emails | downcase | strip
+    assign admin_emails = admin_emails_raw | split: ','
+    assign current_email = customer.email | downcase | strip
+
+    for admin_email in admin_emails
+      assign trimmed_email = admin_email | strip
+      if current_email == trimmed_email
+        assign is_authorized = true
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{%- unless is_authorized -%}
+  {%- comment -%} Immediately redirect unauthorized users to 404 {%- endcomment -%}
+  <script>
+    window.location.replace('/404');
+  </script>
+  <style>
+    html,
+    body {
+      display: none !important;
+      visibility: hidden !important;
+    }
+  </style>
+{%- else -%}
+  <script src="{{ 'dealer-manager.js' | asset_url }}" defer></script>
+  <link rel="stylesheet" href="{{ 'dealer-manager.css' | asset_url }}">
+
+  <div
+    class="dealer-manager-wrapper section color-{{ section.settings.color_scheme }}"
+    style="--padding-block-start: {{ section.settings.padding_block_start }}px; --padding-block-end: {{ section.settings.padding_block_end }}px;"
+  >
+    <div class="dealer-manager-container page-width">
+      {%- comment -%} Page Title {%- endcomment -%}
+      {% comment %}
+        <div class="dealer-manager-header">
+          <h1>{{ page.title | default: "Dealer Manager" }}</h1>
+          <p class="dealer-manager-subtitle">Manage dealer locations for the store locator map</p>
+        </div>
+      {% endcomment %}
+
+      {%- comment -%} Status Messages {%- endcomment -%}
+      <div id="dealer-manager-status" class="dealer-manager-status" style="display: none;">
+        <span class="status-icon"></span>
+        <span class="status-message"></span>
+      </div>
+
+      {%- comment -%} Action Buttons {%- endcomment -%}
+      <div class="dealer-manager-actions">
+        <div class="action-group">
+          <button class="btn btn-primary" id="add-dealer-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Add Dealer
+          </button>
+          <button class="btn btn-secondary" id="download-template-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 2v8m0 0l3-3m-3 3L5 7m9 6H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download Template
+          </button>
+          <button class="btn btn-secondary" id="export-dealers-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 10v4h12v-4M8 2v8m0 0l3-3m-3 3L5 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Export All Dealers
+          </button>
+        </div>
+        <div class="action-group">
+          <button class="btn btn-success" id="save-dealers-btn" disabled>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M13 2L6 9l-3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </div>
+
+      {%- comment -%} Bulk Upload Section {%- endcomment -%}
+      <div class="dealer-manager-upload">
+        <div class="upload-card">
+          <h3>Bulk Upload</h3>
+          <p>Upload an Excel file (.xlsx) to add or replace dealers</p>
+
+          <div class="upload-area">
+            <input type="file" id="excel-upload" accept=".xlsx" style="display: none;">
+            <label for="excel-upload" class="upload-label">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor">
+                <path d="M24 8v24m0 0l-8-8m8 8l8-8M8 32v8h32v-8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Click to upload or drag and drop</span>
+              <span class="upload-hint">Excel file (.xlsx) only</span>
+            </label>
+          </div>
+
+          <div class="upload-options">
+            <label class="radio-option">
+              <input type="radio" name="upload-mode" value="add" checked>
+              <span>Add to existing dealers</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="upload-mode" value="replace">
+              <span>Replace all dealers</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Search and Filter {%- endcomment -%}
+      <div class="dealer-manager-search">
+        <input
+          type="text"
+          id="dealer-search"
+          placeholder="Search dealers by name, address, or phone..."
+          class="search-input"
+        >
+        <span class="search-count"
+          >Showing <strong id="visible-count">0</strong> of <strong id="total-count">0</strong> dealers</span
+        >
+      </div>
+
+      {%- comment -%} Dealers Table {%- endcomment -%}
+      <div class="dealer-manager-table">
+        <div class="table-wrapper">
+          <table id="dealers-table">
+            <thead>
+              <tr>
+                <th class="sortable" data-column="name">
+                  Name
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="address">
+                  Address
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="phone">
+                  Phone
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="email">
+                  Email
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="sortable" data-column="website">
+                  Website
+                  <span class="sort-indicator"></span>
+                </th>
+                <th class="actions-column">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dealers-tbody">
+              <tr class="empty-state">
+                <td colspan="6">
+                  <div class="empty-state-content">
+                    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+                      <circle cx="32" cy="32" r="28" stroke-width="2"/>
+                      <path d="M32 20v16m0 4h.01" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h3>No dealers yet</h3>
+                    <p>Add dealers manually or upload an Excel file to get started</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Add/Edit Dealer Modal {%- endcomment -%}
+  <div id="dealer-modal" class="dealer-modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Add Dealer</h2>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="dealer-form">
+          <input type="hidden" id="dealer-id" name="id">
+
+          <div class="form-group">
+            <label for="dealer-name">Company Name *</label>
+            <input type="text" id="dealer-name" name="name" required placeholder="Store name">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dealer-street">Street *</label>
+              <input type="text" id="dealer-street" name="street" required placeholder="Main Street">
+            </div>
+
+            <div class="form-group" style="flex: 0 0 150px;">
+              <label for="dealer-house-number">House Number *</label>
+              <input type="text" id="dealer-house-number" name="houseNumber" required placeholder="123">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dealer-postal-code">Postal Code *</label>
+              <input type="text" id="dealer-postal-code" name="postalCode" required placeholder="1234 AB">
+            </div>
+
+            <div class="form-group">
+              <label for="dealer-city">City *</label>
+              <input type="text" id="dealer-city" name="city" required placeholder="Amsterdam">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dealer-country">Country *</label>
+            <input
+              type="text"
+              id="dealer-country"
+              name="country"
+              required
+              placeholder="Netherlands"
+              value="Netherlands"
+            >
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dealer-email">Email</label>
+              <input type="email" id="dealer-email" name="email" placeholder="info@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="dealer-phone">Phone *</label>
+              <input type="text" id="dealer-phone" name="phone" required placeholder="020 1234567">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dealer-website">Website</label>
+            <input type="url" id="dealer-website" name="website" placeholder="https://www.example.com">
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Save Dealer</button>
+            <button type="button" class="btn btn-secondary" id="modal-cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Hidden config data {%- endcomment -%}
+  <script id="dealer-manager-config" type="application/json">
+    {
+      "pageHandle": {{ section.settings.page_handle | json }},
+      "apiToken": {{ section.settings.api_token | json }},
+      "shopDomain": {{ shop.permanent_domain | json }}
+    }
+  </script>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Dealer Manager",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "text",
+      "id": "page_handle",
+      "label": "Dealer Locator Page Handle",
+      "default": "dealer-locator",
+      "info": "The page handle where dealers are displayed (default: dealer-locator)"
+    },
+    {
+      "type": "text",
+      "id": "api_token",
+      "label": "Shopify Admin API Token",
+      "info": "Required to save dealer data. Create a private app to get this token."
+    },
+    {
+      "type": "textarea",
+      "id": "admin_emails",
+      "label": "Admin Emails (comma-separated)",
+      "default": "administratie@naaldwijkscooters.nl, milojevic.sasa.pk@gmail.com",
+      "info": "Emails that can access the Manage Dealers button. Separate multiple emails with commas."
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dealer Manager"
+    }
+  ]
+}
+{% endschema %}

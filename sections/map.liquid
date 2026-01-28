@@ -1,5 +1,6 @@
 {% comment %}
   Map Section - displays a Google Map with multiple store locations
+  Dealers are loaded from external Vercel API
 {% endcomment %}
 
 {% capture children %}
@@ -14,42 +15,11 @@
     {% endif %}
   "
 >
+    {%- comment -%} Sidebar will be populated by JavaScript from API {%- endcomment -%}
     <div class="map-sidebar" id="map-sidebar-{{ section.id }}">
-      {%- for block in section.blocks -%}
-        {%- if block.settings.address != blank -%}
-          <div class="map-location-item" data-store-id="{{ block.id }}">
-            {%- if block.settings.name != blank -%}
-              <h3>{{ block.settings.name }}</h3>
-            {%- endif -%}
-            {%- if block.settings.address != blank -%}
-              <p>{{ block.settings.address }}</p>
-            {%- endif -%}
-            {%- if block.settings.phone != blank -%}
-              <div class="map-location-phone">
-                <p>
-                  <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a>
-                </p>
-              </div>
-            {%- endif -%}
-            {%- if block.settings.domain != blank -%}
-              {%- liquid
-                assign clean_url = block.settings.domain | replace: 'https://', '' | replace: 'http://', ''
-                assign url_parts = clean_url | split: '/'
-                assign display_url = url_parts.first
-                
-                unless display_url contains 'www.'
-                  assign display_url = 'www.' | append: display_url
-                endunless
-              -%}
-              <div class="map-location-website">
-                <p>
-                  <a href="{{ block.settings.domain }}" target="_blank" rel="noopener">{{ display_url }}</a>
-                </p>
-              </div>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
+      <div class="map-sidebar-loading">
+        <p>Loading dealers...</p>
+      </div>
     </div>
 
     <div class="map" id="map-{{ section.id }}">
@@ -135,6 +105,8 @@
   (function() {
     const sectionId = '{{ section.id }}';
     const mapElement = document.getElementById('map-' + sectionId);
+    const sidebarElement = document.getElementById('map-sidebar-' + sectionId);
+    const DEALER_API_URL = '{{ section.settings.dealer_api_url | default: "https://dealer-manager-three.vercel.app/api/dealers" }}';
 
     {%- if section.settings.google_maps_api_key == blank -%}
       if (mapElement) {
@@ -143,34 +115,62 @@
       return;
     {%- endif -%}
 
-    {%- if section.blocks.size == 0 -%}
-      if (mapElement) {
-        mapElement.innerHTML = '<div class="map-error"><p>No stores added</p></div>';
+    // Fetch dealers from Vercel API
+    async function fetchDealers() {
+      try {
+        const response = await fetch(DEALER_API_URL + '?all=true');
+        if (!response.ok) throw new Error('Failed to fetch dealers');
+        const data = await response.json();
+        return data.dealers || [];
+      } catch (error) {
+        console.error('Error fetching dealers:', error);
+        return [];
       }
-      return;
-    {%- endif -%}
-
-    // Store locations data
-    const stores = [
-      {%- for block in section.blocks -%}
-        {%- if block.settings.address != blank -%}
-          {
-            id: '{{ block.id }}',
-            name: {{ block.settings.name | json }},
-            address: {{ block.settings.address | json }},
-            phone: {{ block.settings.phone | json }},
-            domain: {{ block.settings.domain | json }}
-          }{%- unless forloop.last -%},{%- endunless -%}
-        {%- endif -%}
-      {%- endfor -%}
-    ];
-
-    if (stores.length === 0) {
-      if (mapElement) {
-        mapElement.innerHTML = '<div class="map-error"><p>No valid addresses</p></div>';
-      }
-      return;
     }
+
+    // Build sidebar HTML from dealers
+    function buildSidebar(dealers) {
+      if (!dealers || dealers.length === 0) {
+        sidebarElement.innerHTML = '<div class="map-error"><p>No dealers found</p></div>';
+        return;
+      }
+
+      let html = '';
+      dealers.forEach(dealer => {
+        const address = `${dealer.street} ${dealer.houseNumber}, ${dealer.postalCode} ${dealer.city}, ${dealer.country}`;
+        let websiteDisplay = '';
+        if (dealer.website) {
+          let cleanUrl = dealer.website.replace('https://', '').replace('http://', '');
+          let displayUrl = cleanUrl.split('/')[0];
+          if (!displayUrl.includes('www.')) displayUrl = 'www.' + displayUrl;
+          websiteDisplay = `<div class="map-location-website"><p><a href="${dealer.website}" target="_blank" rel="noopener">${displayUrl}</a></p></div>`;
+        }
+
+        html += `
+          <div class="map-location-item" data-store-id="${dealer.id}">
+            ${dealer.name ? `<h3>${dealer.name}</h3>` : ''}
+            <p>${address}</p>
+            ${dealer.phone ? `<div class="map-location-phone"><p><a href="tel:${dealer.phone}">${dealer.phone}</a></p></div>` : ''}
+            ${websiteDisplay}
+          </div>
+        `;
+      });
+      sidebarElement.innerHTML = html;
+    }
+
+    // Transform dealers to stores format for map
+    function dealersToStores(dealers) {
+      return dealers.map(dealer => ({
+        id: dealer.id,
+        name: dealer.name,
+        address: `${dealer.street} ${dealer.houseNumber}, ${dealer.postalCode} ${dealer.city}, ${dealer.country}`,
+        phone: dealer.phone,
+        domain: dealer.website
+      }));
+    }
+
+    // Main initialization
+    let stores = [];
 
     // Parse map styles from settings
     let mapStyles = [];
@@ -186,8 +186,20 @@
     const callbackName = 'initMap_' + sectionId.replace(/-/g, '_');
 
     // Initialize map function
-    window[callbackName] = function() {
+    window[callbackName] = async function() {
       console.log('Google Maps loaded for section:', sectionId);
+
+      // Fetch dealers from API if not already loaded
+      if (stores.length === 0) {
+        const dealers = await fetchDealers();
+        buildSidebar(dealers);
+        stores = dealersToStores(dealers);
+      }
+
+      if (stores.length === 0) {
+        mapElement.innerHTML = '<div class="map-error"><p>No dealers found</p></div>';
+        return;
+      }
 
       const geocoder = new google.maps.Geocoder();
       const bounds = new google.maps.LatLngBounds();
@@ -348,6 +360,13 @@
       "id": "google_maps_api_key",
       "label": "Google Maps API Key",
       "info": "Google Maps Javascript API key: https://console.cloud.google.com/"
+    },
+    {
+      "type": "text",
+      "id": "dealer_api_url",
+      "label": "Dealer API URL",
+      "default": "https://dealer-manager-three.vercel.app/api/dealers",
+      "info": "The URL of your dealer manager API endpoint. Manage dealers at https://dealer-manager-three.vercel.app"
     },
     {
       "type": "header",

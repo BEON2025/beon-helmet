@@ -1,0 +1,587 @@
+/* Dealer Manager Styles */
+
+.dealer-manager-wrapper {
+  padding-block-start: var(--padding-block-start);
+  padding-block-end: var(--padding-block-end);
+}
+
+.dealer-manager-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--padding-lg);
+}
+
+/* Header */
+.dealer-manager-header {
+  margin-bottom: var(--gap-2xl);
+  text-align: center;
+}
+
+.dealer-manager-header h1 {
+  margin-bottom: var(--gap-sm);
+}
+
+.dealer-manager-subtitle {
+  color: rgba(var(--color-foreground), 0.7);
+  font-size: var(--font-size-base);
+}
+
+/* Status Messages */
+.dealer-manager-status {
+  display: none;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--padding-md) var(--padding-lg);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--gap-xl);
+  font-weight: 500;
+}
+
+.dealer-manager-status.status-success {
+  background-color: rgba(var(--color-success, 76, 175, 80), 0.1);
+  color: rgb(var(--color-success, 76, 175, 80));
+  border: 1px solid rgba(var(--color-success, 76, 175, 80), 0.3);
+}
+
+.dealer-manager-status.status-error {
+  background-color: rgba(var(--color-error, 244, 67, 54), 0.1);
+  color: rgb(var(--color-error, 244, 67, 54));
+  border: 1px solid rgba(var(--color-error, 244, 67, 54), 0.3);
+}
+
+.dealer-manager-status.status-loading {
+  background-color: rgba(var(--color-foreground), 0.05);
+  color: rgba(var(--color-foreground), 0.8);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+/* Action Buttons */
+.dealer-manager-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-xl);
+}
+
+.action-group {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--padding-sm) var(--padding-md);
+  border: 1px solid rgba(var(--color-foreground), 0.2);
+  border-radius: var(--border-radius);
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+  background: rgba(var(--color-foreground), 0.05);
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border-color: rgb(var(--color-button));
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: rgba(var(--color-button), 0.9);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: rgb(var(--color-success, 76, 175, 80));
+  color: white;
+  border-color: rgb(var(--color-success, 76, 175, 80));
+}
+
+.btn-success:hover:not(:disabled) {
+  background: rgba(var(--color-success, 76, 175, 80), 0.9);
+}
+
+.btn-icon {
+  padding: var(--padding-xs);
+  border: 1px solid rgba(var(--color-foreground), 0.2);
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: rgba(var(--color-foreground), 0.05);
+}
+
+.btn-icon.btn-delete:hover {
+  background: rgba(var(--color-error, 244, 67, 54), 0.1);
+  border-color: rgba(var(--color-error, 244, 67, 54), 0.3);
+  color: rgb(var(--color-error, 244, 67, 54));
+}
+
+/* Upload Section */
+.dealer-manager-upload {
+  margin-bottom: var(--gap-2xl);
+}
+
+.upload-card {
+  background: rgba(var(--color-foreground), 0.02);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--padding-xl);
+}
+
+.upload-card h3 {
+  margin-bottom: var(--gap-xs);
+}
+
+.upload-card > p {
+  color: rgba(var(--color-foreground), 0.7);
+  margin-bottom: var(--gap-lg);
+}
+
+.upload-area {
+  margin-bottom: var(--gap-lg);
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-sm);
+  padding: var(--padding-2xl);
+  border: 2px dashed rgba(var(--color-foreground), 0.2);
+  border-radius: var(--border-radius);
+  background: rgb(var(--color-background));
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-label:hover,
+.upload-area.drag-over .upload-label {
+  border-color: rgb(var(--color-button));
+  background: rgba(var(--color-button), 0.05);
+}
+
+.upload-label svg {
+  opacity: 0.5;
+}
+
+.upload-hint {
+  font-size: var(--font-size-sm);
+  color: rgba(var(--color-foreground), 0.6);
+}
+
+.upload-options {
+  display: flex;
+  gap: var(--gap-lg);
+  margin-bottom: var(--gap-lg);
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Upload Preview */
+.upload-preview {
+  margin-top: var(--gap-xl);
+  padding-top: var(--gap-xl);
+  border-top: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+.upload-preview h4 {
+  margin-bottom: var(--gap-md);
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--gap-lg);
+  font-size: var(--font-size-sm);
+}
+
+.preview-table th,
+.preview-table td {
+  padding: var(--padding-sm);
+  text-align: left;
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+.preview-table th {
+  background: rgba(var(--color-foreground), 0.05);
+  font-weight: 600;
+}
+
+.preview-more {
+  text-align: center;
+  color: rgba(var(--color-foreground), 0.6);
+  font-style: italic;
+}
+
+.preview-actions {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+/* Search */
+.dealer-manager-search {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 300px;
+  padding: var(--padding-sm) var(--padding-md);
+  border: 1px solid #000000;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+}
+
+.search-count {
+  color: rgba(var(--color-foreground), 0.7);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* Table */
+.dealer-manager-table {
+  background: rgb(var(--color-background));
+  border: 1px solid #000000;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+#dealers-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#dealers-table th,
+#dealers-table td {
+  padding: var(--padding-md);
+  text-align: left;
+  border: 1px solid #000000;
+}
+
+#dealers-table th {
+  background: rgba(var(--color-foreground), 0.03);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#dealers-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+#dealers-table th.sortable:hover {
+  background: rgba(var(--color-foreground), 0.05);
+}
+
+#dealers-table th.sorted {
+  background: rgba(var(--color-foreground), 0.08);
+}
+
+.sort-indicator {
+  margin-left: var(--gap-xs);
+  font-size: var(--font-size-lg);
+}
+
+#dealers-table tbody tr:hover {
+  background: rgba(var(--color-foreground), 0.02);
+}
+
+.actions-cell {
+  display: flex;
+  gap: var(--gap-xs);
+  justify-content: flex-end;
+}
+
+.actions-column {
+  width: 120px;
+  text-align: right;
+}
+
+/* Empty State */
+.empty-state td {
+  padding: var(--padding-2xl) !important;
+}
+
+.empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+  color: rgba(var(--color-foreground), 0.5);
+}
+
+.empty-state-content svg {
+  opacity: 0.3;
+}
+
+.empty-state-content h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.empty-state-content p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Modal */
+.dealer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-lg);
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid rgba(var(--color-foreground), 0.2);
+  border-radius: var(--border-radius);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--padding-lg) var(--padding-xl);
+  border-bottom: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(var(--color-foreground), 0.5);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(var(--color-foreground), 0.1);
+  color: rgb(var(--color-foreground));
+}
+
+.modal-body {
+  padding: var(--padding-xl);
+}
+
+.form-group {
+  margin-bottom: var(--gap-lg);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--gap-xs);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: var(--padding-sm) var(--padding-md);
+  border: 1px solid #000000;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  background: #ffffff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: rgb(var(--color-button));
+  box-shadow: 0 0 0 3px rgba(var(--color-button), 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-xl);
+  justify-content: flex-end;
+}
+
+.modal-actions .btn {
+  padding: 1rem;
+  font-weight: 600;
+  min-width: 120px;
+  text-align: center;
+}
+
+.modal-actions .btn-primary {
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border: none;
+}
+
+.modal-actions .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: none;
+}
+
+.modal-actions .btn-secondary {
+  background: transparent;
+  color: rgb(var(--color-foreground));
+  border: 2px solid rgba(var(--color-foreground), 0.2);
+}
+
+.modal-actions .btn-secondary:hover {
+  background: rgba(var(--color-foreground), 0.05);
+  transform: none;
+}
+
+.modal-actions .btn {
+  padding: 1rem;
+  font-weight: 600;
+  min-width: 120px;
+  text-align: center;
+}
+
+.modal-actions .btn-primary {
+  background: rgb(var(--color-button));
+  color: rgb(var(--color-button-text));
+  border: none;
+}
+
+.modal-actions .btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: none;
+}
+
+.modal-actions .btn-secondary {
+  background: transparent;
+  color: rgb(var(--color-foreground));
+  border: 2px solid rgba(var(--color-foreground), 0.2);
+}
+
+.modal-actions .btn-secondary:hover {
+  background: rgba(var(--color-foreground), 0.05);
+  transform: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dealer-manager-actions {
+    flex-direction: column;
+  }
+
+  .action-group {
+    width: 100%;
+  }
+
+  .action-group .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .dealer-manager-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    min-width: 100%;
+  }
+
+  #dealers-table {
+    font-size: var(--font-size-sm);
+  }
+
+  #dealers-table th,
+  #dealers-table td {
+    padding: var(--padding-sm);
+  }
+
+  .modal-content {
+    margin: var(--gap-md);
+  }
+}

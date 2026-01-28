@@ -1,0 +1,501 @@
+/* Dealer Manager Inline Styles - Temporary Version */
+
+/* Toggle Button */
+#dealer-manager-toggle {
+  width: 200px;
+  text-align: center;
+  display: block;
+  padding: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--color-button);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+#dealer-manager-toggle:hover {
+  opacity: 0.9;
+}
+
+#dealer-manager-toggle.active {
+  background: #dc3545;
+}
+
+/* Main Container */
+#dealer-manager-inline {
+  border-top: 2px solid rgba(var(--color-foreground), 0.1);
+  padding: 2rem var(--page-margin);
+  background: rgba(var(--color-foreground), 0.02);
+}
+
+.dealer-manager-inline-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Status Messages */
+#dealer-manager-inline .dealer-manager-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+#dealer-manager-inline .status-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+#dealer-manager-inline .status-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+#dealer-manager-inline .status-loading {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+/* Action Buttons */
+#dealer-manager-inline .dealer-manager-actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#dealer-manager-inline .action-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+#dealer-manager-inline .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#dealer-manager-inline .btn-primary {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+#dealer-manager-inline .btn-primary:hover {
+  background: #0056b3;
+}
+
+#dealer-manager-inline .btn-secondary {
+  background: white;
+  color: #333;
+}
+
+#dealer-manager-inline .btn-secondary:hover {
+  background: #f0f0f0;
+}
+
+#dealer-manager-inline .btn-success {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+#dealer-manager-inline .btn-success:hover:not(:disabled) {
+  background: #218838;
+}
+
+#dealer-manager-inline .btn-success:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Upload Section */
+#dealer-manager-inline .dealer-manager-upload {
+  margin-bottom: 1.5rem;
+}
+
+#dealer-manager-inline .upload-card {
+  background: white;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+#dealer-manager-inline .upload-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+#dealer-manager-inline .upload-card > p {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+#dealer-manager-inline .upload-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.2s;
+  margin-bottom: 1rem;
+}
+
+#dealer-manager-inline .upload-area:hover,
+#dealer-manager-inline .upload-area.drag-over {
+  border-color: #007bff;
+  background: rgba(0, 123, 255, 0.05);
+}
+
+#dealer-manager-inline .upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+#dealer-manager-inline .upload-hint {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+#dealer-manager-inline .upload-options {
+  display: flex;
+  gap: 1.5rem;
+}
+
+#dealer-manager-inline .radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Search */
+#dealer-manager-inline .dealer-manager-search {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+#dealer-manager-inline .search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+  padding: 0.5rem 1rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+#dealer-manager-inline .search-count {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* Table */
+#dealer-manager-inline .dealer-manager-table {
+  background: white;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#dealer-manager-inline .table-wrapper {
+  overflow-x: auto;
+}
+
+#dealer-manager-inline table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#dealer-manager-inline th,
+#dealer-manager-inline td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: 1px solid #000000;
+}
+
+#dealer-manager-inline th {
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+#dealer-manager-inline th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+#dealer-manager-inline th.sortable:hover {
+  background: #e9ecef;
+}
+
+#dealer-manager-inline td {
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+#dealer-manager-inline .actions-column {
+  width: 100px;
+  text-align: center;
+}
+
+#dealer-manager-inline .actions-cell {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#dealer-manager-inline .btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#dealer-manager-inline .btn-icon:hover {
+  background: #f0f0f0;
+}
+
+#dealer-manager-inline .btn-delete:hover {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+/* Empty State */
+#dealer-manager-inline .empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  color: #666;
+}
+
+#dealer-manager-inline .empty-state-content h3 {
+  margin: 1rem 0 0.5rem 0;
+}
+
+#dealer-manager-inline .empty-state-content p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Modals */
+#dealer-manager-inline .dealer-modal,
+#dealer-manager-inline .json-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#dealer-manager-inline .modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+#dealer-manager-inline .modal-content {
+  position: relative;
+  background: #ffffff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #000000;
+}
+
+#dealer-manager-inline .json-modal .modal-content {
+  max-width: 700px;
+}
+
+#dealer-manager-inline .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #000000;
+}
+
+#dealer-manager-inline .modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+#dealer-manager-inline .modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  line-height: 1;
+}
+
+#dealer-manager-inline .modal-close:hover {
+  color: #000;
+}
+
+#dealer-manager-inline .modal-body {
+  padding: 1.5rem;
+}
+
+/* Form Styles */
+#dealer-manager-inline .form-group {
+  margin-bottom: 1rem;
+}
+
+#dealer-manager-inline .form-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+#dealer-manager-inline .form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+#dealer-manager-inline .form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+#dealer-manager-inline .form-row .form-group {
+  flex: 1;
+}
+
+#dealer-manager-inline .modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+/* JSON Modal Specific */
+#dealer-manager-inline .json-instructions {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+#dealer-manager-inline .json-instructions h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #856404;
+}
+
+#dealer-manager-inline .json-instructions ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  color: #856404;
+}
+
+#dealer-manager-inline .json-instructions li {
+  margin-bottom: 0.25rem;
+}
+
+#dealer-manager-inline .json-output {
+  width: 100%;
+  height: 300px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 1rem;
+  border: 1px solid #000000;
+  border-radius: 4px;
+  background: #f8f9fa;
+  resize: vertical;
+}
+
+#dealer-manager-inline .copy-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#dealer-manager-inline .copy-btn:hover {
+  background: #218838;
+}
+
+#dealer-manager-inline .copy-btn.copied {
+  background: #17a2b8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #dealer-manager-inline .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  #dealer-manager-inline .dealer-manager-actions {
+    flex-direction: column;
+  }
+  
+  #dealer-manager-inline .action-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  #dealer-manager-inline .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
