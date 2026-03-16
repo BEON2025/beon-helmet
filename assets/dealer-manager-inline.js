@@ -8,7 +8,7 @@
   'use strict';
 
   // Get API URL from window (set by Liquid template)
-  const API_URL = window.DEALER_API_URL || 'https://dealer-manager-three.vercel.app/api/dealers';
+  const API_URL = window.DEALER_API_URL || 'https://dealerlocator.vercel.app/api/dealers';
 
   // Dutch column names for template/export
   const DUTCH_COLUMNS = ['Bedrijfsnaam', 'Straatnaam', 'Huisnummer', 'Postcode', 'Plaatsnaam', 'Land', 'E-mail', 'Telefoonnummer', 'Website'];
