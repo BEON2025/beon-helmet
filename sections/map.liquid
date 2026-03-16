@@ -106,7 +106,7 @@
     const sectionId = '{{ section.id }}';
     const mapElement = document.getElementById('map-' + sectionId);
     const sidebarElement = document.getElementById('map-sidebar-' + sectionId);
-    const DEALER_API_URL = '{{ section.settings.dealer_api_url | default: "https://dealer-manager-three.vercel.app/api/dealers" }}';
+    const DEALER_API_URL = '{{ section.settings.dealer_api_url | default: "https://dealerlocator.vercel.app/api/dealers" }}';
 
     {%- if section.settings.google_maps_api_key == blank -%}
       if (mapElement) {
