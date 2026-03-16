@@ -572,6 +572,7 @@
       "name": "Map",
       "settings": {
         "google_maps_api_key": "AIzaSyCatNvq46C8acFVqJaxomJNOOOWIxzYvp4",
+        "dealer_api_url": "https://dealerlocator.vercel.app/api/dealers",
         "section_width": "full-width",
         "page_margin": true,
         "section_height": "large",
