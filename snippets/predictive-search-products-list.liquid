@@ -70,14 +70,7 @@
               class="predictive-search-results__card predictive-search-results__card--product"
               ref="recentlyViewedItems[]"
             >
-              {% render 'resource-card',
-                resource_type: 'product',
-                resource: product,
-                image_width: 500,
-                image_hover: true,
-                image_aspect_ratio: '4 / 5'
-                --image-scale: {{ block_settings.image_scale | default: 80 | divided_by: 100.0 }};
-              %}
+              {% render 'resource-card', resource_type: 'product', resource: product, image_width: 500, image_hover: true, image_aspect_ratio: '4 / 5', image-scale: nil, default: 80, divided_by: 100.0 %}
             </li>
           {% endfor %}
         {% endif %}
@@ -185,3 +178,23 @@
     animation-delay: 50ms;
   }
 {% endstylesheet %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {% render 'resource-card',
+                    resource_type: 'product',
+                    resource: product,
+                    image_width: 500,
+                    image_hover: true,
+                    image_aspect_ratio: '4 / 5'
+                    --image-scale: {{ block_settings.image_scale | default: 80 | divided_by: 100.0 }};
+                  %}
+  to: "{% render 'resource-card', resource_type: 'product', resource: product, image_width:
+    500, image_hover: true, image_aspect_ratio: '4 / 5', image-scale: nil, default:
+    80, divided_by: 100.0 %}"
+  position: 2613..2802
+{% endcomment %}
