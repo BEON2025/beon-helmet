@@ -255,8 +255,8 @@
                   "name": "t:names.button",
                   "settings": {
                     "label": "Apply for Dealer Account",
-                    "link": "shopify://pages/register",
-                    "open_in_new_tab": false,
+                    "link": "https://dealer-hub.beoneurope.com/",
+                    "open_in_new_tab": true,
                     "style_class": "button-secondary",
                     "width": "fit-content",
                     "custom_width": 100,
