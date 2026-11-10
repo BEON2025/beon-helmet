@@ -17,7 +17,7 @@
         "announcement_BxgCk9": {
           "type": "_announcement",
           "settings": {
-            "text": "Join our network  |  <a href=\"/pages/register\" title=\"Join the beon network\">Dealer opportunities open now</a>",
+            "text": "Join our network &nbsp;| &nbsp;<a href=\"https://dealer-hub.beoneurope.com/\" target=\"_blank\" title=\"Beoneurope Dealer's Hub\">Dealer opportunities open now</a>",
             "link": "",
             "font": "var(--font-subheading--family)",
             "font_size": "0.75rem",
