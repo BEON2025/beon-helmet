@@ -38,7 +38,9 @@
     if metafield_price != blank
       # Metafield is a money object, use the value property which is in cents
       assign price = metafield_price.value
-    
+    else
+      assign show_msrp_label = false
+      # assign price = selected_variant.price
     endif
     assign show_msrp_label = true
   endif
