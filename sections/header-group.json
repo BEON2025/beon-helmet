@@ -88,7 +88,7 @@
         "menu_position": "left",
         "menu_row": "top",
         "dealer_account_button_label": "Request Dealer Account",
-        "dealer_account_button_url": "shopify://pages/register",
+        "dealer_account_button_url": "https://dealer-hub.beoneurope.com/",
         "show_search": true,
         "search_position": "left",
         "search_row": "top",
