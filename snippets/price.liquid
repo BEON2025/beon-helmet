@@ -39,6 +39,8 @@
       # Metafield is a money object, use the value property which is in cents
       assign price = metafield_price.value
       assign show_msrp_label = true
+    else
+    assign price = 0
     endif
     # assign show_msrp_label = true
   endif
