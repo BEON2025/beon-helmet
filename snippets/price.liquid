@@ -35,11 +35,10 @@
   else
     # Non-B2B: use metafield or fallback to regular price
     assign metafield_price = selected_variant.metafields.pricing.original_consumer_price
-    if metafield_price
+    if metafield_price != blank
       # Metafield is a money object, use the value property which is in cents
       assign price = metafield_price.value
-    else
-      assign price = selected_variant.price
+    
     endif
     assign show_msrp_label = true
   endif
