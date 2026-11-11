@@ -39,6 +39,8 @@
       # Metafield is a money object, use the value property which is in cents
       assign price = metafield_price.value
       assign show_msrp_label = true
+    else
+      assign show_price = false 
     endif
     # assign show_msrp_label = true
   endif
@@ -191,7 +193,7 @@
     </span>
   {% endif %}
 
-  {% if show_compare_price %}
+  {% if show_price and show_compare_price %}
     <span role="group">
       <span class="visually-hidden">{{ 'content.price_sale' | t }}&nbsp;</span>
       <span class="price">
@@ -201,7 +203,7 @@
         {% endif %}
       </span>
     </span>
-  {% else %}
+  {% elsif show_price %}
     <span class="price">
       {{ price | default: '&nbsp;' }}
       {% if show_msrp_label %}
