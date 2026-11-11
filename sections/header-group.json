@@ -116,7 +116,7 @@
         "collection_color_scheme": "default"
       }
     },
-    "custom_liquid_MWLnn4": {
+    "custom_liquid_mxQHqN": {
       "type": "custom-liquid",
       "name": "t:names.custom_liquid",
       "settings": {
@@ -131,6 +131,6 @@
   "order": [
     "header_announcements_9jGBFp",
     "header_section",
-    "custom_liquid_MWLnn4"
+    "custom_liquid_mxQHqN"
   ]
 }
