@@ -21,6 +21,29 @@
 
   {% render 'pin-button' %}
 
+  <a
+    href="https://dealers-hub.beoneurope.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Dealer Hub"
+    class="dealer-hub-link"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+    </svg>
+  </a>
+
   {% if shop.customer_accounts_enabled %}
     {% render 'account-popover',
       dealer_account_button_label: dealer_account_button_label,
@@ -306,5 +329,22 @@
     opacity: 0.7;
     pointer-events: none;
     cursor: not-allowed;
+  }
+
+  .dealer-hub-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .dealer-hub-link:hover {
+    opacity: 0.7;
+  }
+
+  .dealer-hub-link svg {
+    display: block;
   }
 {% endstylesheet %}
