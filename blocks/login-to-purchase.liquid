@@ -47,7 +47,8 @@
         </account-login-actions>
 
         <a
-          href="{% if request.design_mode %}{{ routes.account_url }}{% else %}{{ routes.storefront_login_url }}{% endif %}"
+          href="https://dealer-hub.beoneurope.com/"
+          {% comment %} href="{% if request.design_mode %}{{ routes.account_url }}{% else %}{{ routes.storefront_login_url }}{% endif %}" {% endcomment %}
           class="button button-primary"
         >
           {{ 'actions.log_in' | t }}
