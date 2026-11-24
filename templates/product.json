@@ -563,7 +563,7 @@
                       "settings": {
                         "style_class": "button",
                         "dealer_account_button_label": "Request Dealer Account",
-                        "dealer_account_button_url": "shopify://pages/register"
+                        "dealer_account_button_url": "https://dealer-hub.beoneurope.com/"
                       },
                       "blocks": {}
                     },
@@ -4717,8 +4717,8 @@
                 "custom_width": 70,
                 "width_mobile": "fill",
                 "custom_width_mobile": 100,
-                "height": "fit" ,
-                "custom_height":100,
+                "height": "fit",
+                "custom_height": 100,
                 "hide_on_mobile": false,
                 "inherit_color_scheme": true,
                 "color_scheme": "",
